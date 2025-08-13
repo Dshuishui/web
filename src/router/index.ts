@@ -74,6 +74,12 @@ const routes: RouteRecordRaw[] = [
         component: () =>
           import('@/views/application/Modify.vue'),
         meta: {title: '表单', name: '/app/form'},
+      },
+      {
+        path: 'serverless',
+        component: () =>
+          import('@/views/application/ServerlessComputing.vue'),
+        meta: {title: '无服务器计算', name: '/app/serverless'},
       }
     ]
   },

@@ -10,6 +10,7 @@
       <el-menu-item index="/app/list">表格</el-menu-item>
       <el-menu-item index="/app/tabs">标签页</el-menu-item>
       <el-menu-item index="/app/form">表单</el-menu-item>
+      <el-menu-item index="/app/serverless">无服务器计算</el-menu-item>
     </el-sub-menu>
     <el-menu-item index="/test">
       <i class="iconfont icon-menu icon-a-01-2zhisuanchihuaziyuanchi"></i>
@@ -23,13 +24,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMenu, ElMessage } from 'element-plus';
+import { ElMenu } from 'element-plus';
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router';
 
 const mainHeight = ref<number>(0)
 const route = useRoute()
-
 
 onMounted(() => {
   if (document.getElementById("header")) {
@@ -54,5 +54,4 @@ const activeMenu = () => {
 </script>
 
 <style lang="less" scoped>
-
 </style>
