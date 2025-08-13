@@ -1,0 +1,28 @@
+body {
+  height: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+}
+::-webkit-scrollbar {
+  display: none; /* Chrome Safari */
+}
+
+#app {
+  .sidebar-container {
+    transition: width 0.28s;
+    width: 208px !important;
+    background-color: var(--emdc-bg-color-container);
+    height: 100%;
+    //position: fixed;
+    font-size: 0px;
+    //top: 0;
+    //bottom: 0;
+    //left: 0;
+    z-index: 1001;
+    overflow: hidden;
+  }
+}
