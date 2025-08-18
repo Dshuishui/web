@@ -243,19 +243,19 @@
 
             <!-- 图表展示区 -->
             <div class="charts-container">
-              <div class="chart-item">
-                <h4>实时性能趋势</h4>
-                <div class="chart-wrapper">
-                  <canvas ref="performanceChart" width="400" height="200"></canvas>
-                </div>
-              </div>
-              <div class="chart-item">
-                <h4>指标达成情况</h4>
-                <div class="chart-wrapper">
-                  <canvas ref="achievementChart" width="400" height="200"></canvas>
-                </div>
-              </div>
-            </div>
+  <div class="chart-item">
+    <h4>并发处理能力趋势 (TPS)</h4>
+    <div class="chart-wrapper">
+      <canvas ref="concurrencyChart" width="400" height="200"></canvas>
+    </div>
+  </div>
+  <div class="chart-item">
+    <h4>数据吞吐率趋势 (Gb/s)</h4>
+    <div class="chart-wrapper">
+      <canvas ref="throughputChart" width="400" height="200"></canvas>
+    </div>
+  </div>
+</div>
           </div>
         </div>
       </el-tab-pane>
@@ -387,8 +387,10 @@ const testConfig = reactive({
 });
 
 // 图表引用
-const performanceChart = ref(null);
-const achievementChart = ref(null);
+// const performanceChart = ref(null);
+// const achievementChart = ref(null);
+const concurrencyChart = ref(null);
+const throughputChart = ref(null);
 
 // 命名空间数据
 const namespaces = ref([
@@ -628,28 +630,30 @@ const initCharts = async () => {
   try {
     const Chart = (await import("chart.js/auto")).default;
 
-    // 性能趋势图
-    if (performanceChart.value) {
-      new Chart(performanceChart.value, {
+    // 并发处理能力趋势图 (TPS)
+    if (concurrencyChart.value) {
+      new Chart(concurrencyChart.value, {
         type: "line",
         data: {
-          labels: Array.from({ length: 12 }, (_, i) => `${i * 5}s`),
+          labels: Array.from({length: 12}, (_, i) => `${i * 5}s`),
           datasets: [
             {
-              label: "TPS",
-              data: Array.from({ length: 12 }, () =>
+              label: "实时TPS",
+              data: Array.from({length: 12}, () => 
                 Math.floor(85000 + Math.random() * 25000)
               ),
               borderColor: "#0C8357",
               backgroundColor: "rgba(12, 131, 87, 0.1)",
               tension: 0.4,
+              fill: true,
             },
             {
-              label: "目标线 (10万)",
+              label: "目标线 (10万TPS)",
               data: new Array(12).fill(100000),
               borderColor: "#e02020",
               borderDash: [5, 5],
               pointRadius: 0,
+              fill: false,
             },
           ],
         },
@@ -660,30 +664,55 @@ const initCharts = async () => {
             title: {
               display: false,
             },
+            legend: {
+              display: true,
+              position: 'top',
+            },
           },
           scales: {
             y: {
               beginAtZero: true,
               max: 120000,
+              title: {
+                display: true,
+                text: 'TPS (每秒事务数)'
+              }
             },
+            x: {
+              title: {
+                display: true,
+                text: '测试时间'
+              }
+            }
           },
         },
       });
     }
 
-    // 指标达成图
-    if (achievementChart.value) {
-      new Chart(achievementChart.value, {
-        type: "doughnut",
+    // 数据吞吐率趋势图 (Gb/s)
+    if (throughputChart.value) {
+      new Chart(throughputChart.value, {
+        type: "line",
         data: {
-          labels: ["并发处理能力", "数据吞吐率"],
+          labels: Array.from({length: 12}, (_, i) => `${i * 5}s`),
           datasets: [
             {
-              data: [
-                performanceStatus.value.concurrency === 'achieved' ? 1 : 0,
-                performanceStatus.value.throughput === 'achieved' ? 1 : 0,
-              ],
-              backgroundColor: ["#0C8357", "#4EC58C"],
+              label: "实时吞吐率",
+              data: Array.from({length: 12}, () => 
+                parseFloat((25 + Math.random() * 10).toFixed(1))
+              ),
+              borderColor: "#4EC58C",
+              backgroundColor: "rgba(78, 197, 140, 0.1)",
+              tension: 0.4,
+              fill: true,
+            },
+            {
+              label: "目标线 (30 Gb/s)",
+              data: new Array(12).fill(30),
+              borderColor: "#e02020",
+              borderDash: [5, 5],
+              pointRadius: 0,
+              fill: false,
             },
           ],
         },
@@ -691,9 +720,29 @@ const initCharts = async () => {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: {
-              position: "bottom",
+            title: {
+              display: false,
             },
+            legend: {
+              display: true,
+              position: 'top',
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 40,
+              title: {
+                display: true,
+                text: '吞吐率 (Gb/s)'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: '测试时间'
+              }
+            }
           },
         },
       });
