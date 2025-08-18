@@ -321,15 +321,53 @@ const activeTab = ref("namespace");
 const selectedNamespace = ref("default");
 const createDialogVisible = ref(false);
 const detailsDialogVisible = ref(false);
-const selectedFunction = ref(null);
+// const selectedFunction = ref(null);
 const testRunning = ref(false);
-const testResults = ref(null);
+// const testResults = ref(null);
+
+// 在 script setup 部分的顶部添加这个接口定义
+interface TestResults {
+  totalRequests: string;
+  successRate: string;
+  avgResponseTime: string;
+  peakTPS: string;
+  throughputRate: string;
+  p95ResponseTime: string;
+}
+
+const testResults = ref<TestResults | null>(null);
+
+interface FunctionItem {
+  name: string;
+  image: string;
+  status: string;
+  invocations: number;
+  replicas: string;
+  namespace: string;
+  labels: Record<string, string>;
+  envVars: Record<string, string>;
+}
+
+// 修改 selectedFunction 的声明，添加类型注解
+const selectedFunction = ref<FunctionItem | null>(null);
+
 
 // 性能状态
 const performanceStatus = ref({
   concurrency: 'pending', // pending, testing, achieved, failed
   throughput: 'pending'
 });
+
+interface FunctionItem {
+  name: string;
+  image: string;
+  status: string;
+  invocations: number;
+  replicas: string;
+  namespace: string;
+  labels: Record<string, string>;
+  envVars: Record<string, string>;
+}
 
 // 表单数据
 const createForm = reactive({
@@ -381,7 +419,7 @@ const namespaces = ref([
 ]);
 
 // 函数数据
-const functions = ref([
+const functions = ref<FunctionItem[]>([
   {
     name: "hello-world",
     image: "functions/alpine:latest",
