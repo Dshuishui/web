@@ -1,20 +1,24 @@
 <template>
   <div class="serverless-container">
-    <!-- 页面标题区域 -->
-    <div class="header">
-      <h1>无服务器计算平台</h1>
-      <p>面向边缘微小型数据中心的高性能函数计算服务</p>
-    </div>
+    <!-- 统一的页面介绍区域 -->
+    <div class="page-intro">
+      <div class="intro-header">
+        <h1>无服务器计算平台</h1>
+        <p class="subtitle">面向边缘微小型数据中心的高性能函数计算服务</p>
+      </div>
 
-    <div class="research-intro">
-      <h2>研究背景与核心技术</h2>
-      <div class="research-content">
-        <p>本项目致力于构建面向边缘微小型数据中心的无服务器计算平台，重点解决边缘环境下的函数计算性能与资源管理挑战。</p>
-        <p>核心技术包括：强隔离弹性一致性代数系统设计、函数级动态资源配置机制、高性能函数间通信框架等关键技术，实现了边缘环境下的高并发、低延迟函数计算服务。</p>
-        <p>技术创新点：提供面向边缘服务器无感的强隔离弹性一致性调度算法，实现复杂函数工作流的智能资源管理与编排，构建了高效的函数间直接通信机制。</p>
+      <div class="intro-divider"></div>
+
+      <div class="research-section">
+        <h2>研究背景与核心技术</h2>
+        <div class="research-content">
+          <p>本项目致力于构建面向边缘微小型数据中心的无服务器计算平台，重点解决边缘环境下的函数计算性能与资源管理挑战。</p>
+          <p>核心技术包括：强隔离弹性一致性代数系统设计、函数级动态资源配置机制、高性能函数间通信框架等关键技术，实现了边缘环境下的高并发、低延迟函数计算服务。</p>
+          <p>技术创新点：提供面向边缘服务器无感的强隔离弹性一致性调度算法，实现复杂函数工作流的智能资源管理与编排，构建了高效的函数间直接通信机制。</p>
+
+        </div>
       </div>
     </div>
-
     <!-- 主要内容区域 -->
     <el-tabs v-model="activeTab" class="main-tabs common-tabs">
       <!-- 命名空间管理Tab -->
@@ -36,7 +40,7 @@
               <template #default="scope">
                 <el-tag :type="getStatusType(scope.row.status)">{{
                   scope.row.statusText
-                  }}</el-tag>
+                }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column prop="functions" label="函数数量" width="120" />
@@ -69,7 +73,7 @@
               <template #default="scope">
                 <el-tag :type="getStatusType(scope.row.status)">{{
                   getStatusText(scope.row.status)
-                  }}</el-tag>
+                }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column label="操作" width="200">
@@ -740,13 +744,14 @@ onMounted(() => {
   }
 
   .research-intro {
-  h2 {
-    font-size: 22px;
+    h2 {
+      font-size: 22px;
+    }
+
+    .research-content {
+      font-size: 16px;
+    }
   }
-  .research-content {
-    font-size: 16px;
-  }
-}
 
   // 性能评估专用样式
   .performance-header {
@@ -764,6 +769,60 @@ onMounted(() => {
       font-size: 16px;
       color: var(--emdc-text-color-regular);
       margin: 0;
+    }
+  }
+
+  .page-intro {
+    background: #ffffff;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    .intro-header {
+      text-align: center;
+      margin-bottom: 24px;
+
+      h1 {
+        font-size: 28px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 12px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        color: #7f8c8d;
+        margin: 0;
+      }
+    }
+
+    .intro-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #e6e6e6, transparent);
+      margin: 24px 0;
+    }
+
+    .research-section {
+      h2 {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--emdc-color-primary);
+        margin-bottom: 16px;
+        text-align: center;
+      }
+
+      .research-content {
+        font-size: 15px;
+        line-height: 1.8;
+        color: var(--emdc-text-color-primary);
+
+        p {
+          margin-bottom: 12px;
+          text-indent: 2em;
+        }
+      }
     }
   }
 
