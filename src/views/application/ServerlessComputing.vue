@@ -40,7 +40,7 @@
               <template #default="scope">
                 <el-tag :type="getStatusType(scope.row.status)">{{
                   scope.row.statusText
-                  }}</el-tag>
+                }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column prop="functions" label="函数数量" width="120" />
@@ -73,7 +73,7 @@
               <template #default="scope">
                 <el-tag :type="getStatusType(scope.row.status)">{{
                   getStatusText(scope.row.status)
-                  }}</el-tag>
+                }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column label="操作" width="200">
@@ -380,7 +380,7 @@ const namespaces = ref([
   },
   {
     name: "development",
-    status: "Pending",
+    status: "waiting",
     statusText: "等待中",
     functions: 3,
     cpuUsage: "12%",
@@ -433,10 +433,8 @@ const functions = ref<FunctionItem[]>([
 const getStatusType = (status: string) => {
   const statusMap: Record<string, string> = {
     running: "success",
-    Active: "success",
-    pending: "warning",
-    Pending: "warning",
-    failed: "danger",
+    Active: "success",  // 这里映射了 Active 状态
+    waiting: "warning",
   };
   return statusMap[status] || "info";
 };
@@ -512,7 +510,7 @@ const createFunction = () => {
   const newFunction = {
     name: createForm.name,
     image: createForm.image,
-    status: "pending",
+    status: "waiting",
     invocations: 0,
     replicas: "0/1",
     namespace: selectedNamespace.value,
