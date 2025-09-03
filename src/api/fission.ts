@@ -42,3 +42,20 @@ export const createFunction = (namespace: string, data: any) => {
     data,
   });
 };
+
+// 性能测试相关接口
+export const startPerformanceTest = () => {
+  return request({
+    url: 'http://127.0.0.1:30085/topic3-pro-kp-receiver',
+    method: 'get',
+    timeout: 60000, // 设置60秒超时，因为测试可能需要较长时间
+  });
+};
+
+export const sendPerformanceTest = () => {
+  return request({
+    url: 'http://127.0.0.1:30085/topic3-pro-kp-sender',
+    method: 'get',
+    timeout: 60000, // 设置60秒超时，因为sender会阻塞等待结果
+  });
+};

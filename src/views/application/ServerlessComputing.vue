@@ -246,11 +246,34 @@
                       </el-icon>
                       {{ throughputTesting ? '测试中...' : '开始吞吐测试' }}
                     </el-button>
+                    
+                    <el-button class="-emdc-button-plain" :loading="throughputTesting" @click="startMockThroughputTest" style="margin-left: 10px;">
+                      <el-icon>
+                        <Download />
+                      </el-icon>
+                      模拟测试
+                    </el-button>
+                    
+                    <p class="test-description">
+                      <strong>真实测试</strong>：启动测试 → 发送数据 → 等待结果（约15秒）<br>
+                      <strong>模拟测试</strong>：快速演示效果，使用预设数据
+                    </p>
 
                     <div v-if="throughputResults" class="test-result-summary">
-                      <span class="result-item">峰值吞吐: <strong>{{ throughputResults.peakThroughput }}
-                          Gb/s</strong></span>
+                      <span class="result-item">峰值吞吐: <strong>{{ throughputResults.peakThroughput }} Gb/s</strong></span>
                       <span class="result-item">平均吞吐: <strong>{{ throughputResults.avgThroughput }} Gb/s</strong></span>
+                      <span class="result-item">测试包数: <strong>{{ throughputResults.finalData.length }}</strong></span>
+                    </div>
+                    
+                    <!-- 详细测试数据表格 -->
+                    <div v-if="throughputResults && throughputResults.finalData.length > 0" class="detailed-results">
+                      <h4 style="margin: 15px 0 10px 0; color: var(--emdc-text-color-primary);">详细测试数据</h4>
+                      <el-table :data="getDetailedTestData()" size="small" border class="detailed-table">
+                        <el-table-column prop="pkt_kb" label="包大小(KB)" width="100" />
+                        <el-table-column prop="throughput_gbps" label="吞吐率(Gb/s)" width="120" />
+                        <el-table-column prop="packets_per_sec" label="包/秒" width="150" />
+                        <el-table-column prop="duration_sec" label="持续时间(s)" width="120" />
+                      </el-table>
                     </div>
                   </div>
     </div>
@@ -411,7 +434,7 @@ import { Plus, CaretRight, Timer, Connection, Check, Loading, Clock, Download } 
 
 // 接口定义 - 从useNamespace导入
 import { useNamespace, type FunctionItem } from './hooks/useNamespace';
-import { createEnvironment, createPackage, createFunction as createFunctionAPI } from '@/api/fission';
+import { createEnvironment, createPackage, createFunction as createFunctionAPI, startPerformanceTest, sendPerformanceTest } from '@/api/fission';
 
 interface ConcurrencyResults {
   peakTPS: string;
@@ -423,7 +446,19 @@ interface ThroughputResults {
   peakThroughput: string;
   avgThroughput: string;
   finalData: number[];
+  detailedData?: PerformanceTestItem[]; // 可选的详细数据
 }
+
+// 新增：性能测试API返回的数据结构
+interface PerformanceTestItem {
+  role: string;
+  pkt_kb: number;
+  packets_per_sec: number;
+  throughput_gbps: number;
+  duration_sec: number;
+}
+
+interface PerformanceTestResponse extends Array<PerformanceTestItem> {}
 
 // 使用命名空间Hook
 const {
@@ -792,24 +827,30 @@ const startConcurrencyTest = async () => {
   const totalIntervals = totalDuration / 3;
   let currentInterval = 0;
 
-  concurrencyInterval.value = setInterval(() => {
-    currentInterval++;
-
-    // 生成当前3秒的TPS数据
-    const currentTPS = Math.floor(85000 + Math.random() * 25000);
-    concurrencyRealTimeData.value.push(currentTPS);
-
-    // 更新进度
-    concurrencyProgress.value = (currentInterval / totalIntervals) * 100;
-
-    // 更新图表
-    updateConcurrencyChart();
-
-    // 检查是否完成
-    if (currentInterval >= totalIntervals) {
-      finishConcurrencyTest();
-    }
-  }, intervalTime);
+  // TODO: 集成真实的并发测试API
+  // 当前为演示模式，需要替换为真实的API调用
+  ElMessage.warning("并发测试功能需要集成真实的API");
+  
+  // 模拟测试失败状态
+  concurrencyTesting.value = false;
+  performanceStatus.value.concurrency = 'failed';
+  ElMessage.error("请实现真实的并发测试API集成");
+  
+  // 注释掉原来的模拟逻辑
+  // concurrencyInterval.value = setInterval(() => {
+  //   currentInterval++;
+  //   // 生成当前3秒的TPS数据
+  //   const currentTPS = Math.floor(85000 + Math.random() * 25000);
+  //   concurrencyRealTimeData.value.push(currentTPS);
+  //   // 更新进度
+  //   concurrencyProgress.value = (currentInterval / totalIntervals) * 100;
+  //   // 更新图表
+  //   updateConcurrencyChart();
+  //   // 检查是否完成
+  //   if (currentInterval >= totalIntervals) {
+  //     finishConcurrencyTest();
+  //   }
+  // }, intervalTime);
 };
 
 const finishConcurrencyTest = () => {
@@ -836,54 +877,171 @@ const finishConcurrencyTest = () => {
 
 // 数据吞吐率测试
 const startThroughputTest = async () => {
-  throughputTesting.value = true;
-  throughputProgress.value = 0;
-  throughputRealTimeData.value = [];
-  throughputCurrentPackage.value = 4;
-  performanceStatus.value.throughput = 'testing';
+  try {
+    throughputTesting.value = true;
+    throughputProgress.value = 0;
+    throughputRealTimeData.value = [];
+    throughputCurrentPackage.value = 4;
+    performanceStatus.value.throughput = 'testing';
 
-  // 初始化图表
-  await nextTick();
-  initThroughputChart();
+    // 初始化图表
+    await nextTick();
+    initThroughputChart();
 
-  const packageSizes = [4, 8, 16, 32]; // pky_kb
-  const testDuration = 2000; // 每个包大小测试2秒
-
-  for (let i = 0; i < packageSizes.length; i++) {
-    throughputCurrentPackage.value = packageSizes[i];
-
-    // 模拟测试该包大小
-    await new Promise(resolve => setTimeout(resolve, testDuration));
-
-    // 生成吞吐率数据 (确保能达到或接近30Gb/s)
-    const throughput = parseFloat((25 + Math.random() * 10 + (i * 2)).toFixed(1));
-    throughputRealTimeData.value.push(throughput);
-
-    // 更新进度
-    throughputProgress.value = ((i + 1) / packageSizes.length) * 100;
-
-    // 更新图表
-    updateThroughputChart();
+    // 第一步：调用receiver接口启动测试
+    ElMessage.info("正在启动性能测试...");
+    throughputProgress.value = 25;
+    await startPerformanceTest();
+    
+    // 等待1秒
+    ElMessage.info("等待系统准备就绪...");
+    throughputProgress.value = 50;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // 第二步：调用sender接口并等待阻塞返回结果
+    ElMessage.info("正在发送测试数据，等待测试完成...");
+    throughputProgress.value = 75;
+    
+    try {
+      // sender接口会阻塞等待，直到测试完成并返回结果
+      // 这里直接等待API返回，不需要额外的等待时间
+      const testResults = await sendPerformanceTest();
+      
+      if (testResults && testResults.data) {
+        // 处理API返回的测试结果
+        processPerformanceTestResults(testResults.data);
+      } else {
+        throw new Error("API未返回有效的测试结果");
+      }
+      
+    } catch (apiError: any) {
+      console.error("获取测试结果失败:", apiError);
+      
+      // 根据错误类型提供不同的用户反馈
+      if (apiError?.code === 'ECONNABORTED' || apiError?.message?.includes('timeout')) {
+        throw new Error("测试超时，请检查网络连接和API服务状态");
+      } else if (apiError?.response?.status === 500) {
+        throw new Error("服务器内部错误，请稍后重试");
+      } else {
+        throw new Error(`测试结果获取失败: ${apiError?.message || '未知错误'}`);
+      }
+    }
+    
+  } catch (error) {
+    console.error("性能测试失败:", error);
+    ElMessage.error("性能测试失败，请重试");
+    throughputTesting.value = false;
+    performanceStatus.value.throughput = 'failed';
   }
+};
 
+// 处理性能测试结果
+const processPerformanceTestResults = (results: PerformanceTestResponse) => {
+  console.log("收到API测试结果:", results);
+  
+  // 验证数据格式
+  if (!Array.isArray(results) || results.length === 0) {
+    throw new Error("API返回的测试结果格式无效或为空");
+  }
+  
+  // 提取吞吐率数据
+  throughputRealTimeData.value = results.map(item => item.throughput_gbps);
+  
+  // 保存详细数据用于表格显示
+  throughputResults.value = {
+    peakThroughput: Math.max(...results.map(item => item.throughput_gbps)).toFixed(1),
+    avgThroughput: (results.reduce((sum, item) => sum + item.throughput_gbps, 0) / results.length).toFixed(1),
+    finalData: results.map(item => item.throughput_gbps),
+    detailedData: results // 保存详细数据
+  };
+  
+  // 更新进度
+  throughputProgress.value = 100;
+  
+  // 更新图表显示
+  updateThroughputChart();
+  
+  // 完成测试
   finishThroughputTest();
 };
 
+// 模拟吞吐率测试（用于演示效果）
+const startMockThroughputTest = async () => {
+  try {
+    throughputTesting.value = true;
+    throughputProgress.value = 0;
+    throughputRealTimeData.value = [];
+    throughputCurrentPackage.value = 4;
+    performanceStatus.value.throughput = 'testing';
+
+    // 初始化图表
+    await nextTick();
+    initThroughputChart();
+
+    // 模拟测试流程
+    ElMessage.info("模拟测试：正在启动性能测试...");
+    throughputProgress.value = 25;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    ElMessage.info("模拟测试：等待系统准备就绪...");
+    throughputProgress.value = 50;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    ElMessage.info("模拟测试：正在发送测试数据，等待测试完成...");
+    throughputProgress.value = 75;
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // 模拟API返回的数据结构（基于你提供的真实数据）
+    const mockApiResponse: PerformanceTestResponse = [
+      {"role":"sender","pkt_kb":4,"packets_per_sec":2359053.9960401347,"throughput_gbps":31.99261462524825,"duration_sec":4.23898733},
+      {"role":"sender","pkt_kb":8,"packets_per_sec":1574278.9256324528,"throughput_gbps":36.08636020705889,"duration_sec":6.352114506},
+      {"role":"sender","pkt_kb":16,"packets_per_sec":1406212.6714035033,"throughput_gbps":31.65682023968546,"duration_sec":7.111299879},
+      {"role":"sender","pkt_kb":32,"packets_per_sec":688132.5815047595,"throughput_gbps":38.00111853143542,"duration_sec":14.532083306}
+    ];
+
+    console.log("模拟测试数据:", mockApiResponse);
+    console.log("图表实例状态:", !!throughputChartInstance);
+
+    // 处理模拟测试结果
+    processPerformanceTestResults(mockApiResponse);
+    
+    // 手动更新图表显示
+    updateThroughputChart();
+
+  } catch (error) {
+    console.error("模拟测试失败:", error);
+    ElMessage.error("模拟测试失败，请重试");
+    throughputTesting.value = false;
+    performanceStatus.value.throughput = 'failed';
+  }
+};
+
+// 获取详细测试数据用于表格显示
+const getDetailedTestData = () => {
+  if (throughputResults.value && throughputResults.value.detailedData) {
+    return throughputResults.value.detailedData;
+  }
+  // 如果没有详细数据，返回空数组
+  return [];
+};
+
 const finishThroughputTest = () => {
+  // 性能状态已经在processPerformanceTestResults中设置
   const peakThroughput = Math.max(...throughputRealTimeData.value);
-  const avgThroughput = (throughputRealTimeData.value.reduce((a, b) => a + b, 0) / throughputRealTimeData.value.length).toFixed(1);
-
-  throughputResults.value = {
-    peakThroughput: peakThroughput.toFixed(1),
-    avgThroughput: avgThroughput,
-    finalData: [...throughputRealTimeData.value]
-  };
-
-  // 更新性能状态
-  performanceStatus.value.throughput = peakThroughput >= 30 ? 'achieved' : 'failed';
+  
+  // 更新性能状态 - 根据实际数据调整阈值
+  performanceStatus.value.throughput = peakThroughput >= 100 ? 'achieved' : 'failed';
 
   throughputTesting.value = false;
   ElMessage.success("数据吞吐率测试完成！");
+  
+  // 显示详细结果
+  console.log("测试结果详情:", {
+    peakThroughput: peakThroughput.toFixed(2),
+    avgThroughput: throughputResults.value?.avgThroughput,
+    dataPoints: throughputRealTimeData.value.length,
+    allData: throughputRealTimeData.value
+  });
 };
 
 // 图表初始化和更新方法
@@ -978,19 +1136,21 @@ const initThroughputChart = async () => {
       throughputChartInstance = new Chart(throughputChart.value, {
         type: "line",
         data: {
-          labels: ['4', '8', '16', '32'], // 预设包大小标签
+          labels: ['4', '8', '16', '32'], // 包大小标签 (pkt_kb)
           datasets: [
             {
-              label: "实时吞吐率",
+              label: "吞吐率 (Gb/s)",
               data: [],
               borderColor: "#4EC58C",
               backgroundColor: "rgba(78, 197, 140, 0.1)",
               tension: 0.4,
               fill: true,
+              pointRadius: 4,
+              pointHoverRadius: 6,
             },
             {
               label: "目标线 (30 Gb/s)",
-              data: new Array(4).fill(30), // 预设目标线数据
+              data: new Array(4).fill(30), // 目标线数据
               borderColor: "#e02020",
               borderDash: [5, 5],
               pointRadius: 0,
@@ -1007,11 +1167,21 @@ const initThroughputChart = async () => {
               display: true,
               position: 'top',
             },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  if (context.datasetIndex === 0) {
+                    return `吞吐率: ${context.parsed.y.toFixed(2)} Gb/s`;
+                  }
+                  return context.dataset.label;
+                }
+              }
+            }
           },
           scales: {
             y: {
               beginAtZero: true,
-              max: 40,
+              max: 40, // 固定Y轴最大值为40
               title: {
                 display: true,
                 text: '吞吐率 (Gb/s)'
@@ -1020,7 +1190,7 @@ const initThroughputChart = async () => {
             x: {
               title: {
                 display: true,
-                text: '包大小 (pky_kb)'
+                text: '包大小 (KB)'
               }
             }
           },
@@ -1037,10 +1207,20 @@ const updateThroughputChart = () => {
     const packageSizes = [4, 8, 16, 32];
     const labels = packageSizes.slice(0, throughputRealTimeData.value.length).map(size => size.toString());
 
+    console.log("更新吞吐率图表:", {
+      labels: labels,
+      data: throughputRealTimeData.value,
+      chartInstance: !!throughputChartInstance
+    });
+
     throughputChartInstance.data.labels = labels;
     throughputChartInstance.data.datasets[0].data = [...throughputRealTimeData.value];
     throughputChartInstance.data.datasets[1].data = new Array(labels.length).fill(30);
+    
     throughputChartInstance.update('none');
+    console.log("图表更新完成");
+  } else {
+    console.warn("吞吐率图表实例不存在，无法更新");
   }
 };
 
@@ -1434,9 +1614,44 @@ onUnmounted(() => {
               color: var(--emdc-text-color-regular);
 
               strong {
-          color: var(--emdc-color-primary);
+                color: var(--emdc-color-primary);
                 font-weight: 600;
               }
+            }
+          }
+          
+          .detailed-results {
+            margin-top: 20px;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #e6e6e6;
+            
+            .detailed-table {
+              margin-top: 10px;
+              
+              :deep(.el-table__header) {
+                background-color: #f5f5f5;
+              }
+              
+              :deep(.el-table__row) {
+                &:hover {
+                  background-color: #f0f9ff;
+                }
+              }
+            }
+          }
+          
+          .test-description {
+            font-size: 12px;
+            color: var(--emdc-text-color-secondary);
+            text-align: center;
+            margin: 8px 0 0 0;
+            font-style: italic;
+            line-height: 1.4;
+            
+            strong {
+              color: var(--emdc-color-primary);
             }
           }
         }
