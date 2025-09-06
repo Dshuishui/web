@@ -57,13 +57,8 @@
           </div>
 
           <!-- 函数表格 -->
-          <el-table 
-            :data="functions" 
-            class="common-table" 
-            stripe 
-            v-loading="functionsLoading"
-            v-if="functions.length > 0"
-          >
+          <el-table :data="functions" class="common-table" stripe v-loading="functionsLoading"
+            v-if="functions.length > 0">
             <el-table-column prop="metadata.name" label="函数名称" width="180" />
             <el-table-column prop="spec.environment.name" label="环境" width="120" />
             <el-table-column prop="metadata.namespace" label="命名空间" width="120" />
@@ -76,7 +71,8 @@
             <el-table-column label="伸缩策略" width="120">
               <template #default="scope">
                 <el-tag size="small" type="info">
-                  {{ scope.row.spec.InvokeStrategy.ExecutionStrategy.MinScale }}-{{ scope.row.spec.InvokeStrategy.ExecutionStrategy.MaxScale }}
+                  {{ scope.row.spec.InvokeStrategy.ExecutionStrategy.MinScale }}-{{
+                    scope.row.spec.InvokeStrategy.ExecutionStrategy.MaxScale }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -103,10 +99,7 @@
 
           <!-- 空状态显示 -->
           <div v-if="!functionsLoading && functions.length === 0" class="empty-state">
-            <el-empty 
-              description="当前命名空间下暂无函数" 
-              :image-size="120"
-            >
+            <el-empty description="当前命名空间下暂无函数" :image-size="120">
               <el-button type="primary" @click="createDialogVisible = true">
                 创建第一个函数
               </el-button>
@@ -189,7 +182,7 @@
               <div class="module-header">
                 <h3>并发处理能力测试</h3>
                 <p>测试函数级强隔离弹性一致性调度性能，目标：≥ 10万 TPS</p>
-                </div>
+              </div>
 
               <div class="chart-section">
                 <div class="chart-wrapper">
@@ -202,42 +195,42 @@
                     <p>测试进行中... {{ concurrencyProgress.toFixed(0) }}% ({{ Math.floor(concurrencyProgress * 30 / 100) }}s
                       /
                       30s)</p>
-              </div>
+                  </div>
 
                   <div class="test-actions">
                     <el-button class="-emdc-button-primary" :loading="concurrencyTesting" @click="startConcurrencyTest">
-                  <el-icon>
-                    <CaretRight />
-                  </el-icon>
+                      <el-icon>
+                        <CaretRight />
+                      </el-icon>
                       {{ concurrencyTesting ? '测试中...' : '开始并发测试' }}
-                </el-button>
+                    </el-button>
 
                     <div v-if="concurrencyResults" class="test-result-summary">
                       <span class="result-item">峰值TPS: <strong>{{ concurrencyResults.peakTPS }}</strong></span>
                       <span class="result-item">平均TPS: <strong>{{ concurrencyResults.avgTPS }}</strong></span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              </div>
-              </div>
-              </div>
-              </div>
+            </div>
 
             <!-- 右侧：数据吞吐率测试模块 -->
             <div class="test-module">
               <div class="module-header">
                 <h3>数据吞吐率测试</h3>
                 <p>测试不同包大小下的函数间通信性能，目标：≥ 30 Gb/s</p>
-            </div>
+              </div>
 
               <div class="chart-section">
-    <div class="chart-wrapper">
+                <div class="chart-wrapper">
                   <canvas ref="throughputChart" width="400" height="250"></canvas>
-    </div>
+                </div>
 
                 <div class="test-control">
                   <div v-if="throughputTesting" class="test-progress">
                     <el-progress :percentage="throughputProgress" :show-text="false" />
                     <p>测试进行中... {{ throughputProgress.toFixed(0) }}% ({{ throughputCurrentPackage }} KB包)</p>
-  </div>
+                  </div>
 
                   <div class="test-actions">
                     <el-button class="-emdc-button-primary" :loading="throughputTesting" @click="startThroughputTest">
@@ -246,25 +239,27 @@
                       </el-icon>
                       {{ throughputTesting ? '测试中...' : '开始吞吐测试' }}
                     </el-button>
-                    
-                    <el-button class="-emdc-button-plain" :loading="throughputTesting" @click="startMockThroughputTest" style="margin-left: 10px;">
+
+                    <el-button class="-emdc-button-plain" :loading="throughputTesting" @click="startMockThroughputTest"
+                      style="margin-left: 10px;">
                       <el-icon>
                         <Download />
                       </el-icon>
                       模拟测试
                     </el-button>
-                    
+
                     <p class="test-description">
                       <strong>真实测试</strong>：启动测试 → 发送数据 → 等待结果（约15秒）<br>
                       <strong>模拟测试</strong>：快速演示效果，使用预设数据
                     </p>
 
                     <div v-if="throughputResults" class="test-result-summary">
-                      <span class="result-item">峰值吞吐: <strong>{{ throughputResults.peakThroughput }} Gb/s</strong></span>
+                      <span class="result-item">峰值吞吐: <strong>{{ throughputResults.peakThroughput }}
+                          Gb/s</strong></span>
                       <span class="result-item">平均吞吐: <strong>{{ throughputResults.avgThroughput }} Gb/s</strong></span>
                       <span class="result-item">测试包数: <strong>{{ throughputResults.finalData.length }}</strong></span>
                     </div>
-                    
+
                     <!-- 详细测试数据表格 -->
                     <div v-if="throughputResults && throughputResults.finalData.length > 0" class="detailed-results">
                       <h4 style="margin: 15px 0 10px 0; color: var(--emdc-text-color-primary);">详细测试数据</h4>
@@ -276,9 +271,9 @@
                       </el-table>
                     </div>
                   </div>
-    </div>
-  </div>
-</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </el-tab-pane>
@@ -322,15 +317,9 @@
             <el-input v-model="pkgForm.environment" :disabled="true" class="common-input" />
           </el-form-item>
           <el-form-item label="函数代码" required>
-            <el-input
-              v-model="pkgForm.code"
-              type="textarea"
-              :rows="8"
-              placeholder="请输入函数代码，如：
+            <el-input v-model="pkgForm.code" type="textarea" :rows="8" placeholder="请输入函数代码，如：
 def main():
-    return 'Hello World'"
-              class="common-textarea"
-            />
+    return 'Hello World'" class="common-textarea" />
           </el-form-item>
           <el-form-item label="函数入口">
             <el-input v-model="pkgForm.functionName" placeholder="如：main" class="common-input" />
@@ -373,20 +362,10 @@ def main():
         <span class="dialog-footer">
           <el-button @click="createDialogVisible = false">取消</el-button>
           <el-button v-if="createStep > 0" @click="prevStep">上一步</el-button>
-          <el-button 
-            v-if="createStep < 2" 
-            type="primary" 
-            @click="nextStep"
-            :loading="stepLoading"
-          >
+          <el-button v-if="createStep < 2" type="primary" @click="nextStep" :loading="stepLoading">
             下一步
           </el-button>
-          <el-button 
-            v-if="createStep === 2" 
-            type="primary" 
-            @click="createFunction"
-            :loading="stepLoading"
-          >
+          <el-button v-if="createStep === 2" type="primary" @click="createFunction" :loading="stepLoading">
             创建函数
           </el-button>
         </span>
@@ -420,7 +399,8 @@ def main():
         <p><strong>执行器类型:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.ExecutorType }}</p>
         <p><strong>最小副本:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.MinScale }}</p>
         <p><strong>最大副本:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.MaxScale }}</p>
-        <p><strong>专业化超时:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.SpecializationTimeout }}s</p>
+        <p><strong>专业化超时:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.SpecializationTimeout }}s
+        </p>
         <p><strong>目标CPU百分比:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.TargetCPUPercent }}%</p>
       </div>
     </el-dialog>
@@ -458,7 +438,7 @@ interface PerformanceTestItem {
   duration_sec: number;
 }
 
-interface PerformanceTestResponse extends Array<PerformanceTestItem> {}
+interface PerformanceTestResponse extends Array<PerformanceTestItem> { }
 
 // 使用命名空间Hook
 const {
@@ -565,7 +545,7 @@ const getStatusText = (status: string) => {
 const getFunctionStatusType = (functionItem: FunctionItem) => {
   const maxScale = functionItem.spec.InvokeStrategy.ExecutionStrategy.MaxScale;
   const minScale = functionItem.spec.InvokeStrategy.ExecutionStrategy.MinScale;
-  
+
   if (maxScale === 0 && minScale === 0) {
     return "warning"; // 未配置伸缩策略
   } else if (maxScale > 0) {
@@ -578,7 +558,7 @@ const getFunctionStatusType = (functionItem: FunctionItem) => {
 const getFunctionStatusText = (functionItem: FunctionItem) => {
   const maxScale = functionItem.spec.InvokeStrategy.ExecutionStrategy.MaxScale;
   const minScale = functionItem.spec.InvokeStrategy.ExecutionStrategy.MinScale;
-  
+
   if (maxScale === 0 && minScale === 0) {
     return "未配置";
   } else if (maxScale > 0) {
@@ -614,7 +594,7 @@ const nextStep = async () => {
       ElMessage.error('请填写环境名称和运行时镜像');
       return;
     }
-    
+
     stepLoading.value = true;
     try {
       // 创建环境
@@ -632,14 +612,14 @@ const nextStep = async () => {
           }
         }
       };
-      
+
       // 调用创建环境的API
       await createEnvironment(selectedNamespace.value, envData);
       console.log('创建环境:', envData);
-      
+
       // 更新包表单中的环境名称
       pkgForm.environment = envForm.name;
-      
+
       createStep.value = 1;
       ElMessage.success('环境创建成功，请配置包信息');
     } catch (error) {
@@ -653,7 +633,7 @@ const nextStep = async () => {
       ElMessage.error('请填写包名称和函数代码');
       return;
     }
-    
+
     stepLoading.value = true;
     try {
       // 创建包
@@ -662,9 +642,9 @@ const nextStep = async () => {
         kind: "Package",
         metadata: { name: pkgForm.name },
         spec: {
-          environment: { 
-            name: pkgForm.environment, 
-            namespace: selectedNamespace.value 
+          environment: {
+            name: pkgForm.environment,
+            namespace: selectedNamespace.value
           },
           deployment: {
             type: "literal",
@@ -672,15 +652,15 @@ const nextStep = async () => {
           }
         }
       };
-      
+
       // 调用创建包的API
       await createPackage(selectedNamespace.value, pkgData);
       console.log('创建包:', pkgData);
-      
+
       // 更新函数表单中的包名称
       fnForm.package = pkgForm.name;
       fnForm.environment = pkgForm.environment;
-      
+
       createStep.value = 2;
       ElMessage.success('包创建成功，请配置函数信息');
     } catch (error) {
@@ -737,14 +717,14 @@ const createFunction = async () => {
       kind: "Function",
       metadata: { name: fnForm.name },
       spec: {
-        environment: { 
-          name: fnForm.environment, 
-          namespace: selectedNamespace.value 
+        environment: {
+          name: fnForm.environment,
+          namespace: selectedNamespace.value
         },
         package: {
-          packageref: { 
-            name: fnForm.package, 
-            namespace: selectedNamespace.value 
+          packageref: {
+            name: fnForm.package,
+            namespace: selectedNamespace.value
           },
           functionName: fnForm.functionName
         },
@@ -764,17 +744,17 @@ const createFunction = async () => {
         }
       }
     };
-    
+
     // 调用创建函数的API
     await createFunctionAPI(selectedNamespace.value, fnData);
     console.log('创建函数:', fnData);
-    
+
     ElMessage.success("函数创建成功");
     createDialogVisible.value = false;
-    
+
     // 重置表单和步骤
     resetCreateForms();
-    
+
     // 刷新函数列表
     await refreshFunctions();
   } catch (error) {
@@ -830,12 +810,12 @@ const startConcurrencyTest = async () => {
   // TODO: 集成真实的并发测试API
   // 当前为演示模式，需要替换为真实的API调用
   ElMessage.warning("并发测试功能需要集成真实的API");
-  
+
   // 模拟测试失败状态
   concurrencyTesting.value = false;
   performanceStatus.value.concurrency = 'failed';
   ElMessage.error("请实现真实的并发测试API集成");
-  
+
   // 注释掉原来的模拟逻辑
   // concurrencyInterval.value = setInterval(() => {
   //   currentInterval++;
@@ -892,31 +872,31 @@ const startThroughputTest = async () => {
     ElMessage.info("正在启动性能测试...");
     throughputProgress.value = 25;
     await startPerformanceTest();
-    
+
     // 等待1秒
     ElMessage.info("等待系统准备就绪...");
     throughputProgress.value = 50;
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     // 第二步：调用sender接口并等待阻塞返回结果
     ElMessage.info("正在发送测试数据，等待测试完成...");
     throughputProgress.value = 75;
-    
+
     try {
       // sender接口会阻塞等待，直到测试完成并返回结果
       // 这里直接等待API返回，不需要额外的等待时间
       const testResults = await sendPerformanceTest();
-      
+
       if (testResults && testResults.data) {
         // 处理API返回的测试结果
         processPerformanceTestResults(testResults.data);
       } else {
         throw new Error("API未返回有效的测试结果");
       }
-      
+
     } catch (apiError: any) {
       console.error("获取测试结果失败:", apiError);
-      
+
       // 根据错误类型提供不同的用户反馈
       if (apiError?.code === 'ECONNABORTED' || apiError?.message?.includes('timeout')) {
         throw new Error("测试超时，请检查网络连接和API服务状态");
@@ -926,7 +906,7 @@ const startThroughputTest = async () => {
         throw new Error(`测试结果获取失败: ${apiError?.message || '未知错误'}`);
       }
     }
-    
+
   } catch (error) {
     console.error("性能测试失败:", error);
     ElMessage.error("性能测试失败，请重试");
@@ -938,15 +918,15 @@ const startThroughputTest = async () => {
 // 处理性能测试结果
 const processPerformanceTestResults = (results: PerformanceTestResponse) => {
   console.log("收到API测试结果:", results);
-  
+
   // 验证数据格式
   if (!Array.isArray(results) || results.length === 0) {
     throw new Error("API返回的测试结果格式无效或为空");
   }
-  
+
   // 提取吞吐率数据
   throughputRealTimeData.value = results.map(item => item.throughput_gbps);
-  
+
   // 保存详细数据用于表格显示
   throughputResults.value = {
     peakThroughput: Math.max(...results.map(item => item.throughput_gbps)).toFixed(1),
@@ -954,13 +934,13 @@ const processPerformanceTestResults = (results: PerformanceTestResponse) => {
     finalData: results.map(item => item.throughput_gbps),
     detailedData: results // 保存详细数据
   };
-  
+
   // 更新进度
   throughputProgress.value = 100;
-  
+
   // 更新图表显示
   updateThroughputChart();
-  
+
   // 完成测试
   finishThroughputTest();
 };
@@ -993,10 +973,10 @@ const startMockThroughputTest = async () => {
 
     // 模拟API返回的数据结构（基于你提供的真实数据）
     const mockApiResponse: PerformanceTestResponse = [
-      {"role":"sender","pkt_kb":4,"packets_per_sec":2359053.9960401347,"throughput_gbps":31.99261462524825,"duration_sec":4.23898733},
-      {"role":"sender","pkt_kb":8,"packets_per_sec":1574278.9256324528,"throughput_gbps":36.08636020705889,"duration_sec":6.352114506},
-      {"role":"sender","pkt_kb":16,"packets_per_sec":1406212.6714035033,"throughput_gbps":31.65682023968546,"duration_sec":7.111299879},
-      {"role":"sender","pkt_kb":32,"packets_per_sec":688132.5815047595,"throughput_gbps":38.00111853143542,"duration_sec":14.532083306}
+      { "role": "sender", "pkt_kb": 4, "packets_per_sec": 2359053.9960401347, "throughput_gbps": 31.99261462524825, "duration_sec": 4.23898733 },
+      { "role": "sender", "pkt_kb": 8, "packets_per_sec": 1574278.9256324528, "throughput_gbps": 36.08636020705889, "duration_sec": 6.352114506 },
+      { "role": "sender", "pkt_kb": 16, "packets_per_sec": 1406212.6714035033, "throughput_gbps": 31.65682023968546, "duration_sec": 7.111299879 },
+      { "role": "sender", "pkt_kb": 32, "packets_per_sec": 688132.5815047595, "throughput_gbps": 38.00111853143542, "duration_sec": 14.532083306 }
     ];
 
     console.log("模拟测试数据:", mockApiResponse);
@@ -1004,7 +984,7 @@ const startMockThroughputTest = async () => {
 
     // 处理模拟测试结果
     processPerformanceTestResults(mockApiResponse);
-    
+
     // 手动更新图表显示
     updateThroughputChart();
 
@@ -1028,13 +1008,13 @@ const getDetailedTestData = () => {
 const finishThroughputTest = () => {
   // 性能状态已经在processPerformanceTestResults中设置
   const peakThroughput = Math.max(...throughputRealTimeData.value);
-  
+
   // 更新性能状态 - 根据实际数据调整阈值
   performanceStatus.value.throughput = peakThroughput >= 100 ? 'achieved' : 'failed';
 
   throughputTesting.value = false;
   ElMessage.success("数据吞吐率测试完成！");
-  
+
   // 显示详细结果
   console.log("测试结果详情:", {
     peakThroughput: peakThroughput.toFixed(2),
@@ -1169,7 +1149,7 @@ const initThroughputChart = async () => {
             },
             tooltip: {
               callbacks: {
-                label: function(context) {
+                label: function (context) {
                   if (context.datasetIndex === 0) {
                     return `吞吐率: ${context.parsed.y.toFixed(2)} Gb/s`;
                   }
@@ -1216,7 +1196,7 @@ const updateThroughputChart = () => {
     throughputChartInstance.data.labels = labels;
     throughputChartInstance.data.datasets[0].data = [...throughputRealTimeData.value];
     throughputChartInstance.data.datasets[1].data = new Array(labels.length).fill(30);
-    
+
     throughputChartInstance.update('none');
     console.log("图表更新完成");
   } else {
@@ -1262,20 +1242,20 @@ onUnmounted(() => {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
     .intro-header {
-    text-align: center;
+      text-align: center;
       margin-bottom: 24px;
 
-    h1 {
+      h1 {
         font-size: 28px;
-      font-weight: 600;
+        font-weight: 600;
         color: #2c3e50;
         margin-bottom: 12px;
-    }
+      }
 
       .subtitle {
         font-size: 16px;
-      color: #7f8c8d;
-      margin: 0;
+        color: #7f8c8d;
+        margin: 0;
       }
     }
 
@@ -1342,40 +1322,40 @@ onUnmounted(() => {
       span {
         font-size: 16px;
         color: var(--emdc-text-color-regular);
+      }
     }
-  }
 
     .function-header-controls {
-    display: flex;
+      display: flex;
       gap: 30px;
       align-items: center;
-      
+
       .namespace-selector {
         display: flex;
         align-items: center;
         gap: 10px;
-        
+
         span {
           font-size: 14px;
           color: var(--emdc-text-color-regular);
           white-space: nowrap;
         }
-        
+
         .common-select {
           min-width: 150px;
         }
       }
-      
+
       .function-header-info {
         display: flex;
         gap: 20px;
         align-items: center;
-        
+
         .current-namespace,
         .function-count {
           font-size: 14px;
           color: var(--emdc-text-color-regular);
-          
+
           strong {
             color: var(--emdc-color-primary);
             font-weight: 600;
@@ -1563,7 +1543,7 @@ onUnmounted(() => {
       h3 {
         font-size: 18px;
         font-weight: 600;
-          color: var(--emdc-text-color-primary);
+        color: var(--emdc-text-color-primary);
         margin: 0 0 8px 0;
       }
 
@@ -1593,7 +1573,7 @@ onUnmounted(() => {
             font-size: 14px;
             color: var(--emdc-text-color-regular);
             margin: 8px 0 0 0;
-      text-align: center;
+            text-align: center;
           }
         }
 
@@ -1619,21 +1599,21 @@ onUnmounted(() => {
               }
             }
           }
-          
+
           .detailed-results {
             margin-top: 20px;
             padding: 16px;
             background: #fafafa;
             border-radius: 8px;
             border: 1px solid #e6e6e6;
-            
+
             .detailed-table {
               margin-top: 10px;
-              
+
               :deep(.el-table__header) {
                 background-color: #f5f5f5;
               }
-              
+
               :deep(.el-table__row) {
                 &:hover {
                   background-color: #f0f9ff;
@@ -1641,7 +1621,7 @@ onUnmounted(() => {
               }
             }
           }
-          
+
           .test-description {
             font-size: 12px;
             color: var(--emdc-text-color-secondary);
@@ -1649,7 +1629,7 @@ onUnmounted(() => {
             margin: 8px 0 0 0;
             font-style: italic;
             line-height: 1.4;
-            
+
             strong {
               color: var(--emdc-color-primary);
             }
