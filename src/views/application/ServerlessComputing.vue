@@ -846,7 +846,7 @@ const startConcurrencyTest = async () => {
     // 读取流式数据
     while (true) {
       const { done, value } = await reader.read();
-      
+
       if (done) {
         clearTimeout(timeoutId);
         break;
@@ -854,7 +854,7 @@ const startConcurrencyTest = async () => {
 
       // 将接收到的数据解码并添加到缓冲区
       buffer += decoder.decode(value, { stream: true });
-      
+
       // 处理缓冲区中的完整数据行
       let lines = buffer.split('\n');
       buffer = lines.pop() || ''; // 保留最后一个可能不完整的行
@@ -865,25 +865,25 @@ const startConcurrencyTest = async () => {
           try {
             const jsonStr = line.substring(6); // 移除 "data: " 前缀
             const data = JSON.parse(jsonStr);
-            
+
             // 验证数据格式并提取TPS
             if (data.success && data.results && data.results.tps) {
               const tpsValue = parseFloat(data.results.tps);
-              
+
               if (!isNaN(tpsValue)) {
                 // 添加TPS数据到数组
                 concurrencyRealTimeData.value.push(tpsValue);
                 currentDataPoints++;
-                
+
                 // 计算进度（基于已接收的数据点数）
                 concurrencyProgress.value = Math.min((currentDataPoints / expectedDataPoints) * 100, 100);
-                
+
                 // 更新图表
                 updateConcurrencyChart();
-                
+
                 // 输出调试信息
                 console.log(`接收到TPS数据: ${tpsValue}, 进度: ${concurrencyProgress.value.toFixed(1)}%`);
-                
+
                 // 检查是否已接收足够的数据点或者时间已到
                 const elapsedTime = (Date.now() - startTime) / 1000;
                 if (currentDataPoints >= expectedDataPoints || elapsedTime >= totalDuration) {
@@ -905,15 +905,15 @@ const startConcurrencyTest = async () => {
 
   } catch (error) {
     console.error('并发测试失败:', error);
-    
+
     // 错误处理
     concurrencyTesting.value = false;
     performanceStatus.value.concurrency = 'failed';
-    
+
     // 安全的错误信息提取
     // const errorMessage = error?.message || error?.toString() || '未知错误';
     // const errorName = error?.name || '';
-    
+
     // // 根据错误类型显示不同的错误信息
     // if (errorName === 'TypeError' && errorMessage.includes('fetch')) {
     //   ElMessage.error('无法连接到测试服务器，请检查服务器是否启动');
@@ -969,7 +969,7 @@ const finishConcurrencyTest = () => {
 
   // 显示完成消息
   ElMessage.success(`并发处理能力测试完成！峰值TPS: ${peakTPS.toLocaleString()}`);
-  
+
   // 输出详细结果到控制台
   console.log("测试结果详情:", {
     dataPoints: concurrencyRealTimeData.value.length,
@@ -998,21 +998,22 @@ const startThroughputTest = async () => {
 
     // 并行发送两个请求
     console.log('同时发送请求到 sender 和 receiver 端点...');
-    
+
+    // 修改前端请求地址
     const [senderResponse, receiverResponse] = await Promise.all([
-      fetch('http://127.0.0.1:30085/topic3-pro-kp-sender', {
+      fetch('/api/throughput/topic3-pro-kp-sender', {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
         },
-        signal: AbortSignal.timeout(60000) // 60秒超时
+        signal: AbortSignal.timeout(60000)
       }),
-      fetch('http://127.0.0.1:30085/topic3-pro-kp-receiver', {
+      fetch('/api/throughput/topic3-pro-kp-receiver', {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
         },
-        signal: AbortSignal.timeout(60000) // 60秒超时
+        signal: AbortSignal.timeout(60000)
       })
     ]);
 
@@ -1064,11 +1065,11 @@ const startThroughputTest = async () => {
     const processedData: ProcessedTestItem[] = data
       .filter(item => {
         // 过滤有效数据
-        return item && 
-               typeof item.pkt_kb === 'number' && 
-               typeof item.throughput_gbps === 'number' &&
-               !isNaN(item.pkt_kb) && 
-               !isNaN(item.throughput_gbps);
+        return item &&
+          typeof item.pkt_kb === 'number' &&
+          typeof item.throughput_gbps === 'number' &&
+          !isNaN(item.pkt_kb) &&
+          !isNaN(item.throughput_gbps);
       })
       .map(item => ({
         pkt_kb: item.pkt_kb,
@@ -1084,10 +1085,10 @@ const startThroughputTest = async () => {
 
     // 更新数据到状态
     throughputRealTimeData.value = processedData.map(item => item.throughput_gbps);
-    
+
     // 更新图表数据
     updateThroughputChart(processedData);
-    
+
     throughputProgress.value = 100; // 完成
 
     // 计算结果统计
@@ -1112,7 +1113,7 @@ const startThroughputTest = async () => {
     // 显示完成消息
     const statusText = peakThroughput >= 30 ? '达标' : '未达标';
     ElMessage.success(`数据吞吐率测试完成！峰值: ${peakThroughput.toFixed(1)} Gb/s (${statusText})`);
-    
+
     // 输出详细结果到控制台
     console.log("吞吐率测试结果详情:", {
       dataPoints: processedData.length,
@@ -1132,16 +1133,16 @@ const startThroughputTest = async () => {
 
   } catch (error) {
     console.error('数据吞吐率测试失败:', error);
-    
+
     // 错误处理
     throughputTesting.value = false;
     performanceStatus.value.throughput = 'failed';
     throughputProgress.value = 0;
-    
+
     // 安全的错误信息提取
     // const errorMessage = error?.message || error?.toString() || '未知错误';
     // const errorName = error?.name || '';
-    
+
     // // 根据错误类型显示不同的错误信息
     // if (errorName === 'TypeError' && errorMessage.includes('fetch')) {
     //   ElMessage.error('无法连接到吞吐测试服务器，请检查服务器是否启动');
@@ -1174,9 +1175,9 @@ const processPerformanceTestResults = (results: PerformanceTestResponse) => {
   // 处理数据格式，确保与新版本兼容
   const processedData: ProcessedTestItem[] = results
     .filter(item => {
-      return item && 
-             typeof item.throughput_gbps === 'number' && 
-             !isNaN(item.throughput_gbps);
+      return item &&
+        typeof item.throughput_gbps === 'number' &&
+        !isNaN(item.throughput_gbps);
     })
     .map(item => ({
       pkt_kb: item.pkt_kb || 4, // 如果没有pkt_kb，默认为4
@@ -1470,10 +1471,10 @@ const updateThroughputChart = (processedData?: ProcessedTestItem[]) => {
   // 更新图表数据
   throughputChartInstance.data.labels = labels;
   throughputChartInstance.data.datasets[0].data = throughputData;
-  
+
   // 更新目标线数据（保持30 Gb/s的目标线）
   throughputChartInstance.data.datasets[1].data = new Array(labels.length).fill(30);
-  
+
   // 更新图表
   throughputChartInstance.update('none');
 };
