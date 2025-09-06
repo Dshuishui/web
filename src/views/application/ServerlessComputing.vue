@@ -980,7 +980,6 @@ const finishConcurrencyTest = () => {
   });
 };
 
-// 数据吞吐率测试 - 真实API实现
 const startThroughputTest = async () => {
   throughputTesting.value = true;
   throughputProgress.value = 0;
@@ -995,27 +994,62 @@ const startThroughputTest = async () => {
   try {
     // 显示测试开始
     ElMessage.info('开始数据吞吐率测试...');
-    throughputProgress.value = 20; // 显示开始进度
+    throughputProgress.value = 10; // 显示开始进度
 
-    // 发送GET请求到吞吐测试服务器
-    const response = await fetch('http://127.0.0.1:30085/topic3-pro-kp-sender', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-      // 设置较长的超时时间，因为吞吐测试可能需要较长时间
-      signal: AbortSignal.timeout(60000) // 60秒超时
-    });
+    // 并行发送两个请求
+    console.log('同时发送请求到 sender 和 receiver 端点...');
+    
+    const [senderResponse, receiverResponse] = await Promise.all([
+      fetch('http://127.0.0.1:30085/topic3-pro-kp-sender', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        signal: AbortSignal.timeout(60000) // 60秒超时
+      }),
+      fetch('http://127.0.0.1:30085/topic3-pro-kp-receiver', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        signal: AbortSignal.timeout(60000) // 60秒超时
+      })
+    ]);
 
     throughputProgress.value = 50; // 请求已发送
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    // 检查两个响应的状态
+    if (!senderResponse.ok) {
+      throw new Error(`Sender endpoint error! status: ${senderResponse.status}`);
+    }
+    if (!receiverResponse.ok) {
+      throw new Error(`Receiver endpoint error! status: ${receiverResponse.status}`);
     }
 
-    // 解析JSON响应
-    const data = await response.json();
+    // 解析两个响应的JSON数据
+    const [senderData, receiverData] = await Promise.all([
+      senderResponse.json(),
+      receiverResponse.json()
+    ]);
+
     throughputProgress.value = 80; // 数据已接收
+
+    // 输出调试信息
+    console.log('Sender 数据:', senderData);
+    console.log('Receiver 数据:', receiverData);
+
+    // 选择使用哪个数据源（优先使用 sender 数据，如果没有则使用 receiver 数据）
+    let data = senderData;
+    if (!Array.isArray(senderData) || senderData.length === 0) {
+      if (Array.isArray(receiverData) && receiverData.length > 0) {
+        data = receiverData;
+        console.log('使用 receiver 数据作为主要数据源');
+      } else {
+        throw new Error('两个端点都没有返回有效数据');
+      }
+    } else {
+      console.log('使用 sender 数据作为主要数据源');
+    }
 
     // 验证响应数据格式
     if (!Array.isArray(data)) {
@@ -1128,7 +1162,6 @@ const startThroughputTest = async () => {
     // }
   }
 };
-
 // 处理性能测试结果
 const processPerformanceTestResults = (results: PerformanceTestResponse) => {
   console.log("收到API测试结果:", results);
