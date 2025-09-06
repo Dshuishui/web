@@ -422,14 +422,15 @@ interface ConcurrencyResults {
   finalData: number[];
 }
 
+// 修改接口定义，使 detailedData 可选且类型更灵活
 interface ThroughputResults {
   peakThroughput: string;
   avgThroughput: string;
   finalData: number[];
-  detailedData?: PerformanceTestItem[]; // 可选的详细数据
+  detailedData?: any[]; // 修改为 any[] 以支持不同的数据结构
 }
 
-// 新增：性能测试API返回的数据结构
+// 性能测试API返回的数据结构
 interface PerformanceTestItem {
   role: string;
   pkt_kb: number;
@@ -439,6 +440,14 @@ interface PerformanceTestItem {
 }
 
 interface PerformanceTestResponse extends Array<PerformanceTestItem> { }
+
+// 处理后的数据结构（用于图表显示）
+interface ProcessedTestItem {
+  pkt_kb: number;
+  throughput_gbps: number;
+  packets_per_sec: number;
+  duration_sec: number;
+}
 
 // 使用命名空间Hook
 const {
@@ -469,11 +478,11 @@ const concurrencyResults = ref<ConcurrencyResults | null>(null);
 const concurrencyInterval = ref<NodeJS.Timeout | null>(null);
 const concurrencyRealTimeData = ref<number[]>([]);
 
-// 吞吐测试相关
+// 吞吐测试相关 - 修改 throughputCurrentPackage 类型
 const throughputTesting = ref(false);
 const throughputProgress = ref(0);
 const throughputResults = ref<ThroughputResults | null>(null);
-const throughputCurrentPackage = ref(4);
+const throughputCurrentPackage = ref<string | number>(''); // 支持字符串和数字类型
 const throughputRealTimeData = ref<number[]>([]);
 
 // 创建函数步骤控制
@@ -524,12 +533,7 @@ const throughputChart = ref(null);
 let concurrencyChartInstance: any = null;
 let throughputChartInstance: any = null;
 
-// 命名空间数据 - 已从useNamespace Hook获取
-
-// 函数数据 - 已从useNamespace Hook获取
-
 // 工具方法
-
 const getStatusText = (status: string) => {
   const statusMap: Record<string, string> = {
     running: "运行中",
@@ -791,7 +795,7 @@ const resetCreateForms = () => {
   });
 };
 
-// 并发处理能力测试
+// 并发处理能力测试 - 真实API实现
 const startConcurrencyTest = async () => {
   concurrencyTesting.value = true;
   concurrencyProgress.value = 0;
@@ -802,116 +806,326 @@ const startConcurrencyTest = async () => {
   await nextTick();
   initConcurrencyChart();
 
-  const totalDuration = 30; // 30秒
-  const intervalTime = 3000; // 3秒间隔
-  const totalIntervals = totalDuration / 3;
-  let currentInterval = 0;
+  const totalDuration = 30; // 30秒测试时长
+  const expectedDataPoints = 10; // 预期获得10个数据点（每3秒一个）
+  let currentDataPoints = 0;
+  let startTime = Date.now();
 
-  // TODO: 集成真实的并发测试API
-  // 当前为演示模式，需要替换为真实的API调用
-  ElMessage.warning("并发测试功能需要集成真实的API");
+  try {
+    // 发送POST请求启动性能测试
+    const response = await fetch('http://127.0.0.1:8888', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        servers: ["10.15.16.40:3088", "10.15.16.141:3088", "10.15.17.215:3088"]
+      })
+    });
 
-  // 模拟测试失败状态
-  concurrencyTesting.value = false;
-  performanceStatus.value.concurrency = 'failed';
-  ElMessage.error("请实现真实的并发测试API集成");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-  // 注释掉原来的模拟逻辑
-  // concurrencyInterval.value = setInterval(() => {
-  //   currentInterval++;
-  //   // 生成当前3秒的TPS数据
-  //   const currentTPS = Math.floor(85000 + Math.random() * 25000);
-  //   concurrencyRealTimeData.value.push(currentTPS);
-  //   // 更新进度
-  //   concurrencyProgress.value = (currentInterval / totalIntervals) * 100;
-  //   // 更新图表
-  //   updateConcurrencyChart();
-  //   // 检查是否完成
-  //   if (currentInterval >= totalIntervals) {
-  //     finishConcurrencyTest();
-  //   }
-  // }, intervalTime);
+    // 检查响应是否支持流式读取
+    if (!response.body) {
+      throw new Error('ReadableStream not supported in this browser.');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    // 设置超时定时器，防止测试卡住
+    const timeoutId = setTimeout(() => {
+      reader.cancel();
+      finishConcurrencyTest();
+      ElMessage.error('测试超时，已自动结束');
+    }, 35000); // 35秒超时，比预期的30秒多5秒缓冲
+
+    // 读取流式数据
+    while (true) {
+      const { done, value } = await reader.read();
+      
+      if (done) {
+        clearTimeout(timeoutId);
+        break;
+      }
+
+      // 将接收到的数据解码并添加到缓冲区
+      buffer += decoder.decode(value, { stream: true });
+      
+      // 处理缓冲区中的完整数据行
+      let lines = buffer.split('\n');
+      buffer = lines.pop() || ''; // 保留最后一个可能不完整的行
+
+      for (let line of lines) {
+        // 去除前缀 "data: " 并解析JSON
+        if (line.startsWith('data: ')) {
+          try {
+            const jsonStr = line.substring(6); // 移除 "data: " 前缀
+            const data = JSON.parse(jsonStr);
+            
+            // 验证数据格式并提取TPS
+            if (data.success && data.results && data.results.tps) {
+              const tpsValue = parseFloat(data.results.tps);
+              
+              if (!isNaN(tpsValue)) {
+                // 添加TPS数据到数组
+                concurrencyRealTimeData.value.push(tpsValue);
+                currentDataPoints++;
+                
+                // 计算进度（基于已接收的数据点数）
+                concurrencyProgress.value = Math.min((currentDataPoints / expectedDataPoints) * 100, 100);
+                
+                // 更新图表
+                updateConcurrencyChart();
+                
+                // 输出调试信息
+                console.log(`接收到TPS数据: ${tpsValue}, 进度: ${concurrencyProgress.value.toFixed(1)}%`);
+                
+                // 检查是否已接收足够的数据点或者时间已到
+                const elapsedTime = (Date.now() - startTime) / 1000;
+                if (currentDataPoints >= expectedDataPoints || elapsedTime >= totalDuration) {
+                  clearTimeout(timeoutId);
+                  reader.cancel();
+                  break;
+                }
+              }
+            }
+          } catch (parseError) {
+            console.warn('解析数据行失败:', line, parseError);
+          }
+        }
+      }
+    }
+
+    // 测试完成
+    finishConcurrencyTest();
+
+  } catch (error) {
+    console.error('并发测试失败:', error);
+    
+    // 错误处理
+    concurrencyTesting.value = false;
+    performanceStatus.value.concurrency = 'failed';
+    
+    // 安全的错误信息提取
+    // const errorMessage = error?.message || error?.toString() || '未知错误';
+    // const errorName = error?.name || '';
+    
+    // // 根据错误类型显示不同的错误信息
+    // if (errorName === 'TypeError' && errorMessage.includes('fetch')) {
+    //   ElMessage.error('无法连接到测试服务器，请检查服务器是否启动');
+    // } else if (errorName === 'AbortError' || errorMessage.includes('aborted')) {
+    //   ElMessage.error('请求被取消');
+    // } else if (errorName === 'TimeoutError' || errorMessage.includes('timeout')) {
+    //   ElMessage.error('请求超时，请检查网络连接');
+    // } else if (errorMessage.includes('HTTP error')) {
+    //   ElMessage.error(`服务器返回错误: ${errorMessage}`);
+    // } else if (errorMessage.includes('CORS') || errorMessage.includes('cross-origin')) {
+    //   ElMessage.error('跨域请求被阻止，请检查服务器CORS配置');
+    // } else if (errorMessage.includes('network') || errorMessage.includes('NetworkError')) {
+    //   ElMessage.error('网络错误，请检查网络连接');
+    // } else {
+    //   ElMessage.error(`测试执行失败: ${errorMessage}`);
+    // }
+  }
 };
 
+// 完成并发测试的处理函数
 const finishConcurrencyTest = () => {
+  // 清理定时器（如果有的话）
   if (concurrencyInterval.value) {
     clearInterval(concurrencyInterval.value);
     concurrencyInterval.value = null;
   }
 
+  // 检查是否有有效数据
+  if (concurrencyRealTimeData.value.length === 0) {
+    ElMessage.error('未接收到有效的测试数据');
+    concurrencyTesting.value = false;
+    performanceStatus.value.concurrency = 'failed';
+    return;
+  }
+
+  // 计算峰值和平均TPS
   const peakTPS = Math.max(...concurrencyRealTimeData.value);
   const avgTPS = Math.floor(concurrencyRealTimeData.value.reduce((a, b) => a + b, 0) / concurrencyRealTimeData.value.length);
 
+  // 设置测试结果
   concurrencyResults.value = {
     peakTPS: peakTPS.toLocaleString(),
     avgTPS: avgTPS.toLocaleString(),
     finalData: [...concurrencyRealTimeData.value]
   };
 
-  // 更新性能状态
+  // 更新性能状态（目标是10万TPS）
   performanceStatus.value.concurrency = peakTPS >= 100000 ? 'achieved' : 'failed';
 
+  // 设置测试完成状态
   concurrencyTesting.value = false;
-  ElMessage.success("并发处理能力测试完成！");
+  concurrencyProgress.value = 100;
+
+  // 显示完成消息
+  ElMessage.success(`并发处理能力测试完成！峰值TPS: ${peakTPS.toLocaleString()}`);
+  
+  // 输出详细结果到控制台
+  console.log("测试结果详情:", {
+    dataPoints: concurrencyRealTimeData.value.length,
+    peakTPS: peakTPS,
+    avgTPS: avgTPS,
+    allData: concurrencyRealTimeData.value,
+    achieved: peakTPS >= 100000
+  });
 };
 
-// 数据吞吐率测试
+// 数据吞吐率测试 - 真实API实现
 const startThroughputTest = async () => {
+  throughputTesting.value = true;
+  throughputProgress.value = 0;
+  throughputRealTimeData.value = [];
+  throughputCurrentPackage.value = ''; // 清空当前包大小显示
+  performanceStatus.value.throughput = 'testing';
+
+  // 初始化图表
+  await nextTick();
+  initThroughputChart();
+
   try {
-    throughputTesting.value = true;
-    throughputProgress.value = 0;
-    throughputRealTimeData.value = [];
-    throughputCurrentPackage.value = 4;
-    performanceStatus.value.throughput = 'testing';
+    // 显示测试开始
+    ElMessage.info('开始数据吞吐率测试...');
+    throughputProgress.value = 20; // 显示开始进度
 
-    // 初始化图表
-    await nextTick();
-    initThroughputChart();
+    // 发送GET请求到吞吐测试服务器
+    const response = await fetch('http://127.0.0.1:30085/topic3-pro-kp-sender', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+      // 设置较长的超时时间，因为吞吐测试可能需要较长时间
+      signal: AbortSignal.timeout(60000) // 60秒超时
+    });
 
-    // 第一步：调用receiver接口启动测试
-    ElMessage.info("正在启动性能测试...");
-    throughputProgress.value = 25;
-    await startPerformanceTest();
+    throughputProgress.value = 50; // 请求已发送
 
-    // 等待1秒
-    ElMessage.info("等待系统准备就绪...");
-    throughputProgress.value = 50;
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // 第二步：调用sender接口并等待阻塞返回结果
-    ElMessage.info("正在发送测试数据，等待测试完成...");
-    throughputProgress.value = 75;
-
-    try {
-      // sender接口会阻塞等待，直到测试完成并返回结果
-      // 这里直接等待API返回，不需要额外的等待时间
-      const testResults = await sendPerformanceTest();
-
-      if (testResults && testResults.data) {
-        // 处理API返回的测试结果
-        processPerformanceTestResults(testResults.data);
-      } else {
-        throw new Error("API未返回有效的测试结果");
-      }
-
-    } catch (apiError: any) {
-      console.error("获取测试结果失败:", apiError);
-
-      // 根据错误类型提供不同的用户反馈
-      if (apiError?.code === 'ECONNABORTED' || apiError?.message?.includes('timeout')) {
-        throw new Error("测试超时，请检查网络连接和API服务状态");
-      } else if (apiError?.response?.status === 500) {
-        throw new Error("服务器内部错误，请稍后重试");
-      } else {
-        throw new Error(`测试结果获取失败: ${apiError?.message || '未知错误'}`);
-      }
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
+    // 解析JSON响应
+    const data = await response.json();
+    throughputProgress.value = 80; // 数据已接收
+
+    // 验证响应数据格式
+    if (!Array.isArray(data)) {
+      throw new Error('响应数据格式错误：期望数组格式');
+    }
+
+    if (data.length === 0) {
+      throw new Error('未接收到测试数据');
+    }
+
+    // 处理测试数据
+    const processedData: ProcessedTestItem[] = data
+      .filter(item => {
+        // 过滤有效数据
+        return item && 
+               typeof item.pkt_kb === 'number' && 
+               typeof item.throughput_gbps === 'number' &&
+               !isNaN(item.pkt_kb) && 
+               !isNaN(item.throughput_gbps);
+      })
+      .map(item => ({
+        pkt_kb: item.pkt_kb,
+        throughput_gbps: parseFloat(item.throughput_gbps.toFixed(2)), // 保留2位小数
+        packets_per_sec: item.packets_per_sec,
+        duration_sec: item.duration_sec
+      }))
+      .sort((a, b) => a.pkt_kb - b.pkt_kb); // 按包大小排序
+
+    if (processedData.length === 0) {
+      throw new Error('没有有效的测试数据');
+    }
+
+    // 更新数据到状态
+    throughputRealTimeData.value = processedData.map(item => item.throughput_gbps);
+    
+    // 更新图表数据
+    updateThroughputChart(processedData);
+    
+    throughputProgress.value = 100; // 完成
+
+    // 计算结果统计
+    const throughputValues = processedData.map(item => item.throughput_gbps);
+    const peakThroughput = Math.max(...throughputValues);
+    const avgThroughput = (throughputValues.reduce((a, b) => a + b, 0) / throughputValues.length).toFixed(1);
+
+    // 设置测试结果
+    throughputResults.value = {
+      peakThroughput: peakThroughput.toFixed(1),
+      avgThroughput: avgThroughput,
+      finalData: [...throughputValues],
+      detailedData: processedData // 保存详细数据供调试使用
+    };
+
+    // 更新性能状态（目标是30 Gb/s）
+    performanceStatus.value.throughput = peakThroughput >= 30 ? 'achieved' : 'failed';
+
+    // 设置测试完成状态
+    throughputTesting.value = false;
+
+    // 显示完成消息
+    const statusText = peakThroughput >= 30 ? '达标' : '未达标';
+    ElMessage.success(`数据吞吐率测试完成！峰值: ${peakThroughput.toFixed(1)} Gb/s (${statusText})`);
+    
+    // 输出详细结果到控制台
+    console.log("吞吐率测试结果详情:", {
+      dataPoints: processedData.length,
+      peakThroughput: peakThroughput,
+      avgThroughput: parseFloat(avgThroughput),
+      achieved: peakThroughput >= 30,
+      detailedData: processedData
+    });
+
+    // 显示每个包大小的详细结果
+    console.table(processedData.map(item => ({
+      '包大小 (KB)': item.pkt_kb,
+      '吞吐率 (Gb/s)': item.throughput_gbps,
+      '包每秒': Math.round(item.packets_per_sec),
+      '持续时间 (s)': item.duration_sec?.toFixed(2)
+    })));
+
   } catch (error) {
-    console.error("性能测试失败:", error);
-    ElMessage.error("性能测试失败，请重试");
+    console.error('数据吞吐率测试失败:', error);
+    
+    // 错误处理
     throughputTesting.value = false;
     performanceStatus.value.throughput = 'failed';
+    throughputProgress.value = 0;
+    
+    // 安全的错误信息提取
+    // const errorMessage = error?.message || error?.toString() || '未知错误';
+    // const errorName = error?.name || '';
+    
+    // // 根据错误类型显示不同的错误信息
+    // if (errorName === 'TypeError' && errorMessage.includes('fetch')) {
+    //   ElMessage.error('无法连接到吞吐测试服务器，请检查服务器是否启动');
+    // } else if (errorName === 'AbortError' || errorMessage.includes('aborted')) {
+    //   ElMessage.error('请求被取消');
+    // } else if (errorName === 'TimeoutError' || errorMessage.includes('timeout')) {
+    //   ElMessage.error('吞吐测试超时，请检查服务器响应');
+    // } else if (errorMessage.includes('HTTP error')) {
+    //   ElMessage.error(`服务器返回错误: ${errorMessage}`);
+    // } else if (errorMessage.includes('JSON') || errorMessage.includes('parse')) {
+    //   ElMessage.error('服务器返回的数据格式错误');
+    // } else if (errorMessage.includes('CORS') || errorMessage.includes('cross-origin')) {
+    //   ElMessage.error('跨域请求被阻止，请检查服务器CORS配置');
+    // } else if (errorMessage.includes('network') || errorMessage.includes('NetworkError')) {
+    //   ElMessage.error('网络错误，请检查网络连接');
+    // } else {
+    //   ElMessage.error(`吞吐测试失败: ${errorMessage}`);
+    // }
   }
 };
 
@@ -924,22 +1138,37 @@ const processPerformanceTestResults = (results: PerformanceTestResponse) => {
     throw new Error("API返回的测试结果格式无效或为空");
   }
 
+  // 处理数据格式，确保与新版本兼容
+  const processedData: ProcessedTestItem[] = results
+    .filter(item => {
+      return item && 
+             typeof item.throughput_gbps === 'number' && 
+             !isNaN(item.throughput_gbps);
+    })
+    .map(item => ({
+      pkt_kb: item.pkt_kb || 4, // 如果没有pkt_kb，默认为4
+      throughput_gbps: parseFloat(item.throughput_gbps.toFixed(2)),
+      packets_per_sec: item.packets_per_sec,
+      duration_sec: item.duration_sec
+    }))
+    .sort((a, b) => a.pkt_kb - b.pkt_kb);
+
   // 提取吞吐率数据
-  throughputRealTimeData.value = results.map(item => item.throughput_gbps);
+  throughputRealTimeData.value = processedData.map(item => item.throughput_gbps);
 
   // 保存详细数据用于表格显示
   throughputResults.value = {
-    peakThroughput: Math.max(...results.map(item => item.throughput_gbps)).toFixed(1),
-    avgThroughput: (results.reduce((sum, item) => sum + item.throughput_gbps, 0) / results.length).toFixed(1),
-    finalData: results.map(item => item.throughput_gbps),
-    detailedData: results // 保存详细数据
+    peakThroughput: Math.max(...processedData.map(item => item.throughput_gbps)).toFixed(1),
+    avgThroughput: (processedData.reduce((sum, item) => sum + item.throughput_gbps, 0) / processedData.length).toFixed(1),
+    finalData: processedData.map(item => item.throughput_gbps),
+    detailedData: processedData // 保存详细数据
   };
 
   // 更新进度
   throughputProgress.value = 100;
 
-  // 更新图表显示
-  updateThroughputChart();
+  // 使用新的参数格式更新图表显示
+  updateThroughputChart(processedData);
 
   // 完成测试
   finishThroughputTest();
@@ -985,9 +1214,6 @@ const startMockThroughputTest = async () => {
     // 处理模拟测试结果
     processPerformanceTestResults(mockApiResponse);
 
-    // 手动更新图表显示
-    updateThroughputChart();
-
   } catch (error) {
     console.error("模拟测试失败:", error);
     ElMessage.error("模拟测试失败，请重试");
@@ -1010,7 +1236,7 @@ const finishThroughputTest = () => {
   const peakThroughput = Math.max(...throughputRealTimeData.value);
 
   // 更新性能状态 - 根据实际数据调整阈值
-  performanceStatus.value.throughput = peakThroughput >= 100 ? 'achieved' : 'failed';
+  performanceStatus.value.throughput = peakThroughput >= 30 ? 'achieved' : 'failed';
 
   throughputTesting.value = false;
   ElMessage.success("数据吞吐率测试完成！");
@@ -1182,26 +1408,41 @@ const initThroughputChart = async () => {
   }
 };
 
-const updateThroughputChart = () => {
-  if (throughputChartInstance) {
-    const packageSizes = [4, 8, 16, 32];
-    const labels = packageSizes.slice(0, throughputRealTimeData.value.length).map(size => size.toString());
-
-    console.log("更新吞吐率图表:", {
-      labels: labels,
-      data: throughputRealTimeData.value,
-      chartInstance: !!throughputChartInstance
-    });
-
-    throughputChartInstance.data.labels = labels;
-    throughputChartInstance.data.datasets[0].data = [...throughputRealTimeData.value];
-    throughputChartInstance.data.datasets[1].data = new Array(labels.length).fill(30);
-
-    throughputChartInstance.update('none');
-    console.log("图表更新完成");
-  } else {
-    console.warn("吞吐率图表实例不存在，无法更新");
+// 更新吞吐率图表函数，支持可选参数
+const updateThroughputChart = (processedData?: ProcessedTestItem[]) => {
+  if (!throughputChartInstance) {
+    console.warn('图表实例不存在，无法更新');
+    return;
   }
+
+  let labels, throughputData;
+
+  if (processedData && Array.isArray(processedData)) {
+    // 新版本：使用传入的 processedData
+    labels = processedData.map(item => item.pkt_kb.toString());
+    throughputData = processedData.map(item => item.throughput_gbps);
+  } else {
+    // 旧版本：使用 throughputRealTimeData 和固定的包大小
+    const packageSizes = [4, 8, 16, 32];
+    labels = packageSizes.slice(0, throughputRealTimeData.value.length).map(size => size.toString());
+    throughputData = [...throughputRealTimeData.value];
+  }
+
+  console.log("更新吞吐率图表:", {
+    labels: labels,
+    data: throughputData,
+    chartInstance: !!throughputChartInstance
+  });
+
+  // 更新图表数据
+  throughputChartInstance.data.labels = labels;
+  throughputChartInstance.data.datasets[0].data = throughputData;
+  
+  // 更新目标线数据（保持30 Gb/s的目标线）
+  throughputChartInstance.data.datasets[1].data = new Array(labels.length).fill(30);
+  
+  // 更新图表
+  throughputChartInstance.update('none');
 };
 
 // 清理函数
