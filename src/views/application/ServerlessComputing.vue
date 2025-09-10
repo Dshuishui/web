@@ -677,7 +677,6 @@ import {
   Check,
   Loading,
   Clock,
-  Download,
 } from "@element-plus/icons-vue";
 
 // 接口定义 - 从useNamespace导入
@@ -686,8 +685,6 @@ import {
   createEnvironment,
   createPackage,
   createFunction as createFunctionAPI,
-  startPerformanceTest,
-  sendPerformanceTest,
 } from "@/api/fission";
 import request from "@/utils/request";
 
@@ -781,14 +778,6 @@ const fnForm = reactive({
   requestsPerPod: 1,
 });
 
-// 旧的表单数据（保留兼容性）
-const createForm = reactive({
-  name: "",
-  image: "",
-  envVars: "",
-  labels: "",
-});
-
 // 图表引用
 const concurrencyChart = ref(null);
 const throughputChart = ref(null);
@@ -834,10 +823,6 @@ const getFunctionStatusText = (functionItem: FunctionItem) => {
   } else {
     return "默认";
   }
-};
-
-const formatNumber = (row: any, column: any, cellValue: number) => {
-  return cellValue.toLocaleString();
 };
 
 // 函数管理方法
@@ -1260,6 +1245,7 @@ const finishConcurrencyTest = () => {
     achieved: peakTPS >= 100000,
   });
 };
+
 const startThroughputTest = async () => {
   throughputTesting.value = true;
   throughputProgress.value = 0;
@@ -1293,32 +1279,14 @@ const startThroughputTest = async () => {
 
     throughputProgress.value = 50;
 
-    if (!senderResponse.ok) {
-      throw new Error(
-        `Sender endpoint error! status: ${senderResponse.status}`
-      );
-    }
-    if (!receiverResponse.ok) {
-      throw new Error(
-        `Receiver endpoint error! status: ${receiverResponse.status}`
-      );
-    }
+    console.log("Sender 数据:", senderResponse);
+    console.log("Receiver 数据:", receiverResponse);
 
-    const [senderData, receiverData] = await Promise.all([
-      senderResponse.json(),
-      receiverResponse.json(),
-    ]);
-
-    throughputProgress.value = 70;
-
-    console.log("Sender 数据:", senderData);
-    console.log("Receiver 数据:", receiverData);
-
-    // 选择数据源
-    let data = senderData;
-    if (!Array.isArray(senderData) || senderData.length === 0) {
-      if (Array.isArray(receiverData) && receiverData.length > 0) {
-        data = receiverData;
+    // 选择数据源 - request 工具直接返回解析后的数据
+    let data = senderResponse;
+    if (!Array.isArray(senderResponse) || senderResponse.length === 0) {
+      if (Array.isArray(receiverResponse) && receiverResponse.length > 0) {
+        data = receiverResponse;
         console.log("使用 receiver 数据作为主要数据源");
       } else {
         throw new Error("两个端点都没有返回有效数据");
@@ -1330,6 +1298,8 @@ const startThroughputTest = async () => {
     if (!Array.isArray(data) || data.length === 0) {
       throw new Error("未接收到有效的测试数据");
     }
+
+    throughputProgress.value = 70;
 
     // 处理测试数据
     const processedData = data
@@ -1399,9 +1369,21 @@ const startThroughputTest = async () => {
       achieved: peakThroughput >= 30,
       detailedData: processedData,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("数据吞吐率测试失败:", error);
 
+    let errorMessage = "数据吞吐率测试失败";
+    if (error && typeof error === 'object' && error.message) {
+      if (error.message.includes('no requests supported')) {
+        errorMessage = '服务返回"no requests supported"错误，可能需要特定的调用方式';
+      } else if (error.message.includes('500')) {
+        errorMessage = '后端服务内部错误，请检查服务状态';
+      } else {
+        errorMessage = `测试失败: ${error.message}`;
+      }
+    }
+
+    ElMessage.error(errorMessage);
     throughputTesting.value = false;
     performanceStatus.value.throughput = "failed";
     throughputProgress.value = 0;
