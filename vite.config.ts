@@ -35,7 +35,7 @@ export default defineConfig({
       '/api/throughput': {
         target: 'http://127.0.0.1:30085',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/throughput/, '')
+        // rewrite: (path) => path.replace(/^\/api/, '')
       },
     },
   },
