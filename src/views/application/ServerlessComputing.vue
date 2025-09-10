@@ -1555,11 +1555,13 @@ const initThroughputChart = async () => {
           scales: {
             y: {
               beginAtZero: true,
-              max: 40, // 固定Y轴最大值为40
+              // 移除固定的 max: 40，让图表根据数据自动计算最大值
               title: {
                 display: true,
                 text: "吞吐率 (Gb/s)",
               },
+              // 添加自适应配置
+              suggestedMax: 200, // 建议最大值，但会根据数据调整
             },
             x: {
               title: {
@@ -1602,23 +1604,30 @@ const updateThroughputChart = (processedData?: ProcessedTestItem[]) => {
     throughputData = [...throughputRealTimeData.value];
   }
 
-  console.log("更新吞吐率图表:", {
-    labels: labels,
-    data: throughputData,
-    chartInstance: !!throughputChartInstance,
-  });
+  // 计算动态Y轴最大值
+  const maxValue = Math.max(...throughputData);
+  const dynamicMax = Math.max(40, Math.ceil((maxValue * 1.1) / 10) * 10); // 至少40，向上取整到10的倍数，并增加10%空间
 
   // 更新图表数据
   throughputChartInstance.data.labels = labels;
   throughputChartInstance.data.datasets[0].data = throughputData;
 
-  // 更新目标线数据（保持30 Gb/s的目标线）
+  // 更新目标线数据，保持30 Gb/s在所有数据点
   throughputChartInstance.data.datasets[1].data = new Array(labels.length).fill(
     30
   );
 
-  // 更新图表
+  // 动态更新Y轴最大值
+  throughputChartInstance.options.scales.y.max = dynamicMax;
+
   throughputChartInstance.update("none");
+
+  console.log("图表更新完成:", {
+    labels: labels,
+    data: throughputData,
+    dynamicMax: dynamicMax,
+    maxValue: maxValue,
+  });
 };
 
 // 清理函数
