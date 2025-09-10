@@ -969,12 +969,12 @@ const startThroughputTest = async () => {
     console.log('同时发送请求到 sender 和 receiver 端点...');
 
     const [senderResponse, receiverResponse] = await Promise.all([
-      fetch('http://127.0.0.1:30085/topic3-pro-kp-sender', {
+      fetch('/api/topic3-pro-kp-sender', {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
         signal: AbortSignal.timeout(60000)
       }),
-      fetch('http://127.0.0.1:30085/topic3-pro-kp-receiver', {
+      fetch('/api/topic3-pro-kp-receiver', {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
         signal: AbortSignal.timeout(60000)
