@@ -1280,12 +1280,12 @@ const startThroughputTest = async () => {
 
     const [receiverResponse, senderResponse] = await Promise.all([
       request({
-        url: "http://127.0.0.1:30085/topic3-pro-kp-receiver",
+        url: "/topic3-pro-kp-receiver",
         method: "get",
         timeout: 60000,
       }),
       request({
-        url: "http://127.0.0.1:30085/topic3-pro-kp-sender",
+        url: "/topic3-pro-kp-sender",
         method: "get",
         timeout: 60000,
       }),
