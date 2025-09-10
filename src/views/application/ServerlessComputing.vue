@@ -1283,31 +1283,31 @@ const startThroughputTest = async () => {
         url: "/topic3-pro-kp-receiver",
         method: "get",
         timeout: 60000,
-      }, true), // 传入 true 获取完整响应对象
+      }),
       request({
         url: "/topic3-pro-kp-sender",
         method: "get",
         timeout: 60000,
-      }, true), // 传入 true 获取完整响应对象
+      }),
     ]);
 
     throughputProgress.value = 50;
 
-    // 修改为 axios 响应对象的检查方式
-    if (senderResponse.status < 200 || senderResponse.status >= 300) {
+    if (!senderResponse.ok) {
       throw new Error(
         `Sender endpoint error! status: ${senderResponse.status}`
       );
     }
-    if (receiverResponse.status < 200 || receiverResponse.status >= 300) {
+    if (!receiverResponse.ok) {
       throw new Error(
         `Receiver endpoint error! status: ${receiverResponse.status}`
       );
     }
 
-    // 直接使用 axios 响应的 data 属性
-    const senderData = senderResponse.data;
-    const receiverData = receiverResponse.data;
+    const [senderData, receiverData] = await Promise.all([
+      senderResponse.json(),
+      receiverResponse.json(),
+    ]);
 
     throughputProgress.value = 70;
 
@@ -1399,41 +1399,12 @@ const startThroughputTest = async () => {
       achieved: peakThroughput >= 30,
       detailedData: processedData,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("数据吞吐率测试失败:", error);
 
     throughputTesting.value = false;
     performanceStatus.value.throughput = "failed";
     throughputProgress.value = 0;
-
-    // 改进错误处理，提供更详细的错误信息
-    let errorMessage = "未知错误";
-    
-    if (error?.response) {
-      // axios 响应错误
-      const status = error.response.status;
-      const statusText = error.response.statusText || "";
-      errorMessage = `服务器返回错误: ${status} ${statusText}`;
-      
-      if (status === 404) {
-        errorMessage = "测试端点不存在，请检查服务器配置";
-      } else if (status >= 500) {
-        errorMessage = "服务器内部错误，请检查后端服务";
-      } else if (status === 0 || !status) {
-        errorMessage = "无法连接到测试服务器，请检查网络连接";
-      }
-    } else if (error?.request) {
-      // 请求发出但没有收到响应
-      errorMessage = "网络请求失败，请检查服务器是否启动 (端口 30085)";
-    } else if (error?.code === 'ECONNREFUSED') {
-      errorMessage = "连接被拒绝，请确认服务器运行在 127.0.0.1:30085";
-    } else if (error?.code === 'TIMEOUT') {
-      errorMessage = "请求超时，服务器响应时间过长";
-    } else if (error?.message) {
-      errorMessage = error.message;
-    }
-
-    ElMessage.error(`数据吞吐率测试失败: ${errorMessage}`);
   }
 };
 
