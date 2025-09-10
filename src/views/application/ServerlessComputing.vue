@@ -1275,8 +1275,8 @@ const startThroughputTest = async () => {
     throughputProgress.value = 10;
 
     console.log("正在启动 sender 和 receiver 端点...");
-    const senderPromise = fetch("http://127.0.0.1:30085/topic3-pro-kp-sender");
-    const receiverPromise = fetch("http://127.0.0.1:30085/topic3-pro-kp-receiver");
+    const senderPromise = fetch("/api/throughput/topic3-pro-kp-sender");
+    const receiverPromise = fetch("/api/throughput/topic3-pro-kp-receiver");
 
     const [senderResponse, receiverResponse] = await Promise.all([
       senderPromise,
