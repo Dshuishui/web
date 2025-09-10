@@ -33,7 +33,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/api/throughput': {
-        target: 'http://127.0.0.1:30085',
+        target: 'http://10.15.16.100:30085',
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api/, '')
       },
