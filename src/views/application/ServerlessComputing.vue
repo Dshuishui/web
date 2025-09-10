@@ -965,30 +965,24 @@ const startThroughputTest = async () => {
     ElMessage.info('开始数据吞吐率测试...');
     throughputProgress.value = 10;
 
-    // 并行发送两个请求
-    console.log('同时发送请求到 sender 和 receiver 端点...');
+    console.log("正在启动 sender 和 receiver 端点...");
+    const senderPromise = fetch('/api/topic3-pro-kp-sender');
+    const receiverPromise = fetch('/api/topic3-pro-kp-receiver');
 
     const [senderResponse, receiverResponse] = await Promise.all([
-      fetch('/api/topic3-pro-kp-sender', {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        signal: AbortSignal.timeout(60000)
-      }),
-      fetch('/api/topic3-pro-kp-receiver', {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        signal: AbortSignal.timeout(60000)
-      })
+      senderPromise,
+      receiverPromise
     ]);
 
-    throughputProgress.value = 50;
-
+    // 检查两个端点的响应是否成功
     if (!senderResponse.ok) {
-      throw new Error(`Sender endpoint error! status: ${senderResponse.status}`);
+      throw new Error(`Sender 端点启动失败! 状态: ${senderResponse.status}`);
     }
     if (!receiverResponse.ok) {
-      throw new Error(`Receiver endpoint error! status: ${receiverResponse.status}`);
+      throw new Error(`Receiver 端点启动失败! 状态: ${receiverResponse.status}`);
     }
+
+    console.log("Sender 和 Receiver 端点已成功启动，开始性能测试...");
 
     const [senderData, receiverData] = await Promise.all([
       senderResponse.json(),
