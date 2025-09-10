@@ -12,16 +12,21 @@
       <div class="research-section">
         <h2>研究背景与核心技术</h2>
         <div class="research-content">
-          <p>本项目致力于构建面向边缘微小型数据中心的无服务器计算平台，重点解决边缘环境下的函数计算性能与资源管理挑战。</p>
-          <p>核心技术包括：强隔离弹性一致性代数系统设计、函数级动态资源配置机制、高性能函数间通信框架等关键技术，实现了边缘环境下的高并发、低延迟函数计算服务。</p>
-          <p>技术创新点：提供面向边缘服务器无感的强隔离弹性一致性调度算法，实现复杂函数工作流的智能资源管理与编排，构建了高效的函数间直接通信机制。</p>
+          <p>
+            本项目致力于构建面向边缘微小型数据中心的无服务器计算平台，重点解决边缘环境下的函数计算性能与资源管理挑战。
+          </p>
+          <p>
+            核心技术包括：强隔离弹性一致性代数系统设计、函数级动态资源配置机制、高性能函数间通信框架等关键技术，实现了边缘环境下的高并发、低延迟函数计算服务。
+          </p>
+          <p>
+            技术创新点：提供面向边缘服务器无感的强隔离弹性一致性调度算法，实现复杂函数工作流的智能资源管理与编排，构建了高效的函数间直接通信机制。
+          </p>
         </div>
       </div>
     </div>
 
     <!-- 主要内容区域 -->
     <el-tabs v-model="activeTab" class="main-tabs common-tabs">
-
       <!-- 函数管理Tab -->
       <el-tab-pane label="函数管理" name="functions">
         <div class="content-panel">
@@ -30,24 +35,46 @@
             <div class="function-header-controls">
               <div class="namespace-selector">
                 <span>选择命名空间:</span>
-                <el-select v-model="selectedNamespace" class="common-select" @change="changeNamespace">
-                  <el-option v-for="ns in namespaces" :key="ns.name" :label="ns.name" :value="ns.name" />
+                <el-select
+                  v-model="selectedNamespace"
+                  class="common-select"
+                  @change="changeNamespace"
+                >
+                  <el-option
+                    v-for="ns in namespaces"
+                    :key="ns.name"
+                    :label="ns.name"
+                    :value="ns.name"
+                  />
                 </el-select>
               </div>
               <div class="function-header-info">
-                <span class="current-namespace">当前命名空间: <strong>{{ selectedNamespace }}</strong></span>
-                <span class="function-count">函数数量: <strong>{{ functions.length }}</strong></span>
-                <span class="loading-status" v-if="functionsLoading">(加载中...)</span>
+                <span class="current-namespace"
+                  >当前命名空间: <strong>{{ selectedNamespace }}</strong></span
+                >
+                <span class="function-count"
+                  >函数数量: <strong>{{ functions.length }}</strong></span
+                >
+                <span class="loading-status" v-if="functionsLoading"
+                  >(加载中...)</span
+                >
               </div>
             </div>
             <div class="function-actions-header">
-              <el-button class="-emdc-button-plain" @click="refreshFunctions" :loading="functionsLoading">
+              <el-button
+                class="-emdc-button-plain"
+                @click="refreshFunctions"
+                :loading="functionsLoading"
+              >
                 <el-icon>
                   <Loading />
                 </el-icon>
                 刷新
               </el-button>
-              <el-button class="-emdc-button-primary" @click="createDialogVisible = true">
+              <el-button
+                class="-emdc-button-primary"
+                @click="createDialogVisible = true"
+              >
                 <el-icon>
                   <Plus />
                 </el-icon>
@@ -57,13 +84,38 @@
           </div>
 
           <!-- 函数表格 -->
-          <el-table :data="functions" class="common-table" stripe v-loading="functionsLoading"
-            v-if="functions.length > 0">
-            <el-table-column prop="metadata.name" label="函数名称" width="180" />
-            <el-table-column prop="spec.environment.name" label="环境" width="120" />
-            <el-table-column prop="metadata.namespace" label="命名空间" width="120" />
-            <el-table-column prop="spec.concurrency" label="并发数" width="100" />
-            <el-table-column prop="spec.functionTimeout" label="超时时间" width="100">
+          <el-table
+            :data="functions"
+            class="common-table"
+            stripe
+            v-loading="functionsLoading"
+            v-if="functions.length > 0"
+          >
+            <el-table-column
+              prop="metadata.name"
+              label="函数名称"
+              width="180"
+            />
+            <el-table-column
+              prop="spec.environment.name"
+              label="环境"
+              width="120"
+            />
+            <el-table-column
+              prop="metadata.namespace"
+              label="命名空间"
+              width="120"
+            />
+            <el-table-column
+              prop="spec.concurrency"
+              label="并发数"
+              width="100"
+            />
+            <el-table-column
+              prop="spec.functionTimeout"
+              label="超时时间"
+              width="100"
+            >
               <template #default="scope">
                 {{ scope.row.spec.functionTimeout }}s
               </template>
@@ -71,8 +123,11 @@
             <el-table-column label="伸缩策略" width="120">
               <template #default="scope">
                 <el-tag size="small" type="info">
-                  {{ scope.row.spec.InvokeStrategy.ExecutionStrategy.MinScale }}-{{
-                    scope.row.spec.InvokeStrategy.ExecutionStrategy.MaxScale }}
+                  {{
+                    scope.row.spec.InvokeStrategy.ExecutionStrategy.MinScale
+                  }}-{{
+                    scope.row.spec.InvokeStrategy.ExecutionStrategy.MaxScale
+                  }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -86,10 +141,18 @@
             <el-table-column label="操作" width="200">
               <template #default="scope">
                 <div class="function-actions">
-                  <el-button class="-emdc-button-plain" size="small" @click="showDetails(scope.row)">
+                  <el-button
+                    class="-emdc-button-plain"
+                    size="small"
+                    @click="showDetails(scope.row)"
+                  >
                     详情
                   </el-button>
-                  <el-button type="danger" size="small" @click="deleteFunction(scope.row)">
+                  <el-button
+                    type="danger"
+                    size="small"
+                    @click="deleteFunction(scope.row)"
+                  >
                     删除
                   </el-button>
                 </div>
@@ -98,7 +161,10 @@
           </el-table>
 
           <!-- 空状态显示 -->
-          <div v-if="!functionsLoading && functions.length === 0" class="empty-state">
+          <div
+            v-if="!functionsLoading && functions.length === 0"
+            class="empty-state"
+          >
             <el-empty description="当前命名空间下暂无函数" :image-size="120">
               <el-button type="primary" @click="createDialogVisible = true">
                 创建第一个函数
@@ -114,7 +180,9 @@
           <!-- 核心指标展示区 -->
           <div class="performance-header">
             <h2 class="section-title">核心技术指标</h2>
-            <p class="performance-subtitle">面向边缘服务器的强隔离弹性一致性代数系统</p>
+            <p class="performance-subtitle">
+              面向边缘服务器的强隔离弹性一致性代数系统
+            </p>
           </div>
 
           <div class="metrics-showcase">
@@ -131,17 +199,24 @@
                   <span class="unit">TPS</span>
                 </div>
                 <p class="metric-desc">函数级强隔离弹性一致性调度</p>
-                <div class="metric-status" :class="performanceStatus.concurrency">
+                <div
+                  class="metric-status"
+                  :class="performanceStatus.concurrency"
+                >
                   <el-icon v-if="performanceStatus.concurrency === 'achieved'">
                     <Check />
                   </el-icon>
-                  <el-icon v-else-if="performanceStatus.concurrency === 'testing'">
+                  <el-icon
+                    v-else-if="performanceStatus.concurrency === 'testing'"
+                  >
                     <Loading />
                   </el-icon>
                   <el-icon v-else>
                     <Clock />
                   </el-icon>
-                  <span>{{ getStatusText(performanceStatus.concurrency) }}</span>
+                  <span>{{
+                    getStatusText(performanceStatus.concurrency)
+                  }}</span>
                 </div>
               </div>
             </div>
@@ -159,11 +234,16 @@
                   <span class="unit">Gb/s</span>
                 </div>
                 <p class="metric-desc">函数间直接通信端到端性能</p>
-                <div class="metric-status" :class="performanceStatus.throughput">
+                <div
+                  class="metric-status"
+                  :class="performanceStatus.throughput"
+                >
                   <el-icon v-if="performanceStatus.throughput === 'achieved'">
                     <Check />
                   </el-icon>
-                  <el-icon v-else-if="performanceStatus.throughput === 'testing'">
+                  <el-icon
+                    v-else-if="performanceStatus.throughput === 'testing'"
+                  >
                     <Loading />
                   </el-icon>
                   <el-icon v-else>
@@ -186,28 +266,47 @@
 
               <div class="chart-section">
                 <div class="chart-wrapper">
-                  <canvas ref="concurrencyChart" width="400" height="250"></canvas>
+                  <canvas
+                    ref="concurrencyChart"
+                    width="400"
+                    height="250"
+                  ></canvas>
                 </div>
 
                 <div class="test-control">
                   <div v-if="concurrencyTesting" class="test-progress">
-                    <el-progress :percentage="concurrencyProgress" :show-text="false" />
-                    <p>测试进行中... {{ concurrencyProgress.toFixed(0) }}% ({{ Math.floor(concurrencyProgress * 30 / 100) }}s
-                      /
-                      30s)</p>
+                    <el-progress
+                      :percentage="concurrencyProgress"
+                      :show-text="false"
+                    />
+                    <p>
+                      测试进行中... {{ concurrencyProgress.toFixed(0) }}% ({{
+                        Math.floor((concurrencyProgress * 30) / 100)
+                      }}s / 30s)
+                    </p>
                   </div>
 
                   <div class="test-actions">
-                    <el-button class="-emdc-button-primary" :loading="concurrencyTesting" @click="startConcurrencyTest">
+                    <el-button
+                      class="-emdc-button-primary"
+                      :loading="concurrencyTesting"
+                      @click="startConcurrencyTest"
+                    >
                       <el-icon>
                         <CaretRight />
                       </el-icon>
-                      {{ concurrencyTesting ? '测试中...' : '开始并发测试' }}
+                      {{ concurrencyTesting ? "测试中..." : "开始并发测试" }}
                     </el-button>
 
                     <div v-if="concurrencyResults" class="test-result-summary">
-                      <span class="result-item">峰值TPS: <strong>{{ concurrencyResults.peakTPS }}</strong></span>
-                      <span class="result-item">平均TPS: <strong>{{ concurrencyResults.avgTPS }}</strong></span>
+                      <span class="result-item"
+                        >峰值TPS:
+                        <strong>{{ concurrencyResults.peakTPS }}</strong></span
+                      >
+                      <span class="result-item"
+                        >平均TPS:
+                        <strong>{{ concurrencyResults.avgTPS }}</strong></span
+                      >
                     </div>
                   </div>
                 </div>
@@ -223,34 +322,64 @@
 
               <div class="chart-section">
                 <div class="chart-wrapper">
-                  <canvas ref="throughputChart" width="400" height="250"></canvas>
+                  <canvas
+                    ref="throughputChart"
+                    width="400"
+                    height="250"
+                  ></canvas>
                 </div>
 
                 <div class="test-control">
                   <div v-if="throughputTesting" class="test-progress">
-                    <el-progress :percentage="throughputProgress" :show-text="false" />
-                    <p>测试进行中... {{ throughputProgress.toFixed(0) }}% ({{ throughputCurrentPackage }} KB包)</p>
+                    <el-progress
+                      :percentage="throughputProgress"
+                      :show-text="false"
+                    />
+                    <p>
+                      测试进行中... {{ throughputProgress.toFixed(0) }}% ({{
+                        throughputCurrentPackage
+                      }}
+                      KB包)
+                    </p>
                   </div>
 
                   <div class="test-actions">
-                    <el-button class="-emdc-button-primary" :loading="throughputTesting" @click="startThroughputTest">
+                    <el-button
+                      class="-emdc-button-primary"
+                      :loading="throughputTesting"
+                      @click="startThroughputTest"
+                    >
                       <el-icon>
                         <CaretRight />
                       </el-icon>
-                      {{ throughputTesting ? '测试中...' : '开始吞吐测试' }}
+                      {{ throughputTesting ? "测试中..." : "开始吞吐测试" }}
                     </el-button>
 
-
                     <p class="test-description">
-                      <strong>真实测试</strong>：启动测试 → 发送数据 → 等待结果（约15秒）<br>
+                      <strong>真实测试</strong>：启动测试 → 发送数据 →
+                      等待结果（约15秒）<br />
                       <strong>模拟测试</strong>：快速演示效果，使用预设数据
                     </p>
 
                     <div v-if="throughputResults" class="test-result-summary">
-                      <span class="result-item">峰值吞吐: <strong>{{ throughputResults.peakThroughput }}
-                          Gb/s</strong></span>
-                      <span class="result-item">平均吞吐: <strong>{{ throughputResults.avgThroughput }} Gb/s</strong></span>
-                      <span class="result-item">测试包数: <strong>{{ throughputResults.finalData.length }}</strong></span>
+                      <span class="result-item"
+                        >峰值吞吐:
+                        <strong
+                          >{{ throughputResults.peakThroughput }} Gb/s</strong
+                        ></span
+                      >
+                      <span class="result-item"
+                        >平均吞吐:
+                        <strong
+                          >{{ throughputResults.avgThroughput }} Gb/s</strong
+                        ></span
+                      >
+                      <span class="result-item"
+                        >测试包数:
+                        <strong>{{
+                          throughputResults.finalData.length
+                        }}</strong></span
+                      >
                     </div>
                   </div>
                 </div>
@@ -262,8 +391,17 @@
     </el-tabs>
 
     <!-- 创建函数对话框 -->
-    <el-dialog v-model="createDialogVisible" title="创建函数" width="800px" class="common-dialog">
-      <el-steps :active="createStep" finish-status="success" class="create-steps">
+    <el-dialog
+      v-model="createDialogVisible"
+      title="创建函数"
+      width="800px"
+      class="common-dialog"
+    >
+      <el-steps
+        :active="createStep"
+        finish-status="success"
+        class="create-steps"
+      >
         <el-step title="创建环境" description="配置运行环境" />
         <el-step title="创建包" description="上传函数代码" />
         <el-step title="创建函数" description="配置函数参数" />
@@ -274,16 +412,34 @@
         <h4>环境配置</h4>
         <el-form :model="envForm" label-width="120px">
           <el-form-item label="环境名称" required>
-            <el-input v-model="envForm.name" placeholder="请输入环境名称，如：python-env" class="common-input" />
+            <el-input
+              v-model="envForm.name"
+              placeholder="请输入环境名称，如：python-env"
+              class="common-input"
+            />
           </el-form-item>
           <el-form-item label="运行时镜像" required>
-            <el-input v-model="envForm.image" placeholder="请输入镜像地址，如：ghcr.io/fission/python-env" class="common-input" />
+            <el-input
+              v-model="envForm.image"
+              placeholder="请输入镜像地址，如：ghcr.io/fission/python-env"
+              class="common-input"
+            />
           </el-form-item>
           <el-form-item label="版本">
-            <el-input-number v-model="envForm.version" :min="1" :max="10" placeholder="3" />
+            <el-input-number
+              v-model="envForm.version"
+              :min="1"
+              :max="10"
+              placeholder="3"
+            />
           </el-form-item>
           <el-form-item label="预热池大小">
-            <el-input-number v-model="envForm.poolsize" :min="0" :max="10" placeholder="1" />
+            <el-input-number
+              v-model="envForm.poolsize"
+              :min="0"
+              :max="10"
+              placeholder="1"
+            />
           </el-form-item>
         </el-form>
       </div>
@@ -293,18 +449,36 @@
         <h4>包配置</h4>
         <el-form :model="pkgForm" label-width="120px">
           <el-form-item label="包名称" required>
-            <el-input v-model="pkgForm.name" placeholder="请输入包名称，如：my-function-pkg" class="common-input" />
+            <el-input
+              v-model="pkgForm.name"
+              placeholder="请输入包名称，如：my-function-pkg"
+              class="common-input"
+            />
           </el-form-item>
           <el-form-item label="环境名称" required>
-            <el-input v-model="pkgForm.environment" :disabled="true" class="common-input" />
+            <el-input
+              v-model="pkgForm.environment"
+              :disabled="true"
+              class="common-input"
+            />
           </el-form-item>
           <el-form-item label="函数代码" required>
-            <el-input v-model="pkgForm.code" type="textarea" :rows="8" placeholder="请输入函数代码，如：
+            <el-input
+              v-model="pkgForm.code"
+              type="textarea"
+              :rows="8"
+              placeholder="请输入函数代码，如：
 def main():
-    return 'Hello World'" class="common-textarea" />
+    return 'Hello World'"
+              class="common-textarea"
+            />
           </el-form-item>
           <el-form-item label="函数入口">
-            <el-input v-model="pkgForm.functionName" placeholder="如：main" class="common-input" />
+            <el-input
+              v-model="pkgForm.functionName"
+              placeholder="如：main"
+              class="common-input"
+            />
           </el-form-item>
         </el-form>
       </div>
@@ -314,28 +488,64 @@ def main():
         <h4>函数配置</h4>
         <el-form :model="fnForm" label-width="120px">
           <el-form-item label="函数名称" required>
-            <el-input v-model="fnForm.name" placeholder="请输入函数名称，如：my-function" class="common-input" />
+            <el-input
+              v-model="fnForm.name"
+              placeholder="请输入函数名称，如：my-function"
+              class="common-input"
+            />
           </el-form-item>
           <el-form-item label="环境名称" required>
-            <el-input v-model="fnForm.environment" :disabled="true" class="common-input" />
+            <el-input
+              v-model="fnForm.environment"
+              :disabled="true"
+              class="common-input"
+            />
           </el-form-item>
           <el-form-item label="包名称" required>
-            <el-input v-model="fnForm.package" :disabled="true" class="common-input" />
+            <el-input
+              v-model="fnForm.package"
+              :disabled="true"
+              class="common-input"
+            />
           </el-form-item>
           <el-form-item label="函数入口" required>
-            <el-input v-model="fnForm.functionName" placeholder="如：main" class="common-input" />
+            <el-input
+              v-model="fnForm.functionName"
+              placeholder="如：main"
+              class="common-input"
+            />
           </el-form-item>
           <el-form-item label="并发数">
-            <el-input-number v-model="fnForm.concurrency" :min="1" :max="1000" placeholder="500" />
+            <el-input-number
+              v-model="fnForm.concurrency"
+              :min="1"
+              :max="1000"
+              placeholder="500"
+            />
           </el-form-item>
           <el-form-item label="超时时间(秒)">
-            <el-input-number v-model="fnForm.functionTimeout" :min="1" :max="300" placeholder="60" />
+            <el-input-number
+              v-model="fnForm.functionTimeout"
+              :min="1"
+              :max="300"
+              placeholder="60"
+            />
           </el-form-item>
           <el-form-item label="空闲超时(秒)">
-            <el-input-number v-model="fnForm.idletimeout" :min="1" :max="600" placeholder="120" />
+            <el-input-number
+              v-model="fnForm.idletimeout"
+              :min="1"
+              :max="600"
+              placeholder="120"
+            />
           </el-form-item>
           <el-form-item label="每Pod请求数">
-            <el-input-number v-model="fnForm.requestsPerPod" :min="1" :max="100" placeholder="1" />
+            <el-input-number
+              v-model="fnForm.requestsPerPod"
+              :min="1"
+              :max="100"
+              placeholder="1"
+            />
           </el-form-item>
         </el-form>
       </div>
@@ -344,10 +554,20 @@ def main():
         <span class="dialog-footer">
           <el-button @click="createDialogVisible = false">取消</el-button>
           <el-button v-if="createStep > 0" @click="prevStep">上一步</el-button>
-          <el-button v-if="createStep < 2" type="primary" @click="nextStep" :loading="stepLoading">
+          <el-button
+            v-if="createStep < 2"
+            type="primary"
+            @click="nextStep"
+            :loading="stepLoading"
+          >
             下一步
           </el-button>
-          <el-button v-if="createStep === 2" type="primary" @click="createFunction" :loading="stepLoading">
+          <el-button
+            v-if="createStep === 2"
+            type="primary"
+            @click="createFunction"
+            :loading="stepLoading"
+          >
             创建函数
           </el-button>
         </span>
@@ -355,35 +575,92 @@ def main():
     </el-dialog>
 
     <!-- 函数详情对话框 -->
-    <el-dialog v-model="detailsDialogVisible" title="函数详情" width="700px" class="common-dialog">
+    <el-dialog
+      v-model="detailsDialogVisible"
+      title="函数详情"
+      width="700px"
+      class="common-dialog"
+    >
       <div v-if="selectedFunction">
         <h4 style="margin-top: 0; margin-bottom: 15px">基本信息:</h4>
         <p><strong>名称:</strong> {{ selectedFunction.metadata.name }}</p>
-        <p><strong>命名空间:</strong> {{ selectedFunction.metadata.namespace }}</p>
-        <p><strong>创建时间:</strong> {{ selectedFunction.metadata.creationTimestamp }}</p>
+        <p>
+          <strong>命名空间:</strong> {{ selectedFunction.metadata.namespace }}
+        </p>
+        <p>
+          <strong>创建时间:</strong>
+          {{ selectedFunction.metadata.creationTimestamp }}
+        </p>
         <p><strong>版本:</strong> {{ selectedFunction.metadata.generation }}</p>
-        <p><strong>状态:</strong> {{ getFunctionStatusText(selectedFunction) }}</p>
+        <p>
+          <strong>状态:</strong> {{ getFunctionStatusText(selectedFunction) }}
+        </p>
         <p><strong>并发数:</strong> {{ selectedFunction.spec.concurrency }}</p>
-        <p><strong>超时时间:</strong> {{ selectedFunction.spec.functionTimeout }}s</p>
-        <p><strong>空闲超时:</strong> {{ selectedFunction.spec.idletimeout }}s</p>
-        <p><strong>每Pod请求数:</strong> {{ selectedFunction.spec.requestsPerPod }}</p>
+        <p>
+          <strong>超时时间:</strong>
+          {{ selectedFunction.spec.functionTimeout }}s
+        </p>
+        <p>
+          <strong>空闲超时:</strong> {{ selectedFunction.spec.idletimeout }}s
+        </p>
+        <p>
+          <strong>每Pod请求数:</strong>
+          {{ selectedFunction.spec.requestsPerPod }}
+        </p>
 
         <h4 style="margin-top: 20px; margin-bottom: 10px">环境信息:</h4>
-        <p><strong>环境名称:</strong> {{ selectedFunction.spec.environment.name }}</p>
-        <p><strong>环境命名空间:</strong> {{ selectedFunction.spec.environment.namespace }}</p>
+        <p>
+          <strong>环境名称:</strong>
+          {{ selectedFunction.spec.environment.name }}
+        </p>
+        <p>
+          <strong>环境命名空间:</strong>
+          {{ selectedFunction.spec.environment.namespace }}
+        </p>
 
         <h4 style="margin-top: 20px; margin-bottom: 10px">包信息:</h4>
-        <p><strong>函数名:</strong> {{ selectedFunction.spec.package.functionName }}</p>
-        <p><strong>包引用:</strong> {{ selectedFunction.spec.package.packageref.name }}</p>
+        <p>
+          <strong>函数名:</strong>
+          {{ selectedFunction.spec.package.functionName }}
+        </p>
+        <p>
+          <strong>包引用:</strong>
+          {{ selectedFunction.spec.package.packageref.name }}
+        </p>
 
         <h4 style="margin-top: 20px; margin-bottom: 10px">伸缩策略:</h4>
-        <p><strong>策略类型:</strong> {{ selectedFunction.spec.InvokeStrategy.StrategyType }}</p>
-        <p><strong>执行器类型:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.ExecutorType }}</p>
-        <p><strong>最小副本:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.MinScale }}</p>
-        <p><strong>最大副本:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.MaxScale }}</p>
-        <p><strong>专业化超时:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.SpecializationTimeout }}s
+        <p>
+          <strong>策略类型:</strong>
+          {{ selectedFunction.spec.InvokeStrategy.StrategyType }}
         </p>
-        <p><strong>目标CPU百分比:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.TargetCPUPercent }}%</p>
+        <p>
+          <strong>执行器类型:</strong>
+          {{
+            selectedFunction.spec.InvokeStrategy.ExecutionStrategy.ExecutorType
+          }}
+        </p>
+        <p>
+          <strong>最小副本:</strong>
+          {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.MinScale }}
+        </p>
+        <p>
+          <strong>最大副本:</strong>
+          {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.MaxScale }}
+        </p>
+        <p>
+          <strong>专业化超时:</strong>
+          {{
+            selectedFunction.spec.InvokeStrategy.ExecutionStrategy
+              .SpecializationTimeout
+          }}s
+        </p>
+        <p>
+          <strong>目标CPU百分比:</strong>
+          {{
+            selectedFunction.spec.InvokeStrategy.ExecutionStrategy
+              .TargetCPUPercent
+          }}%
+        </p>
       </div>
     </el-dialog>
   </div>
@@ -392,11 +669,26 @@ def main():
 <script setup lang="ts">
 import { ref, reactive, onMounted, nextTick, onUnmounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { Plus, CaretRight, Timer, Connection, Check, Loading, Clock, Download } from "@element-plus/icons-vue";
+import {
+  Plus,
+  CaretRight,
+  Timer,
+  Connection,
+  Check,
+  Loading,
+  Clock,
+  Download,
+} from "@element-plus/icons-vue";
 
 // 接口定义 - 从useNamespace导入
-import { useNamespace, type FunctionItem } from './hooks/useNamespace';
-import { createEnvironment, createPackage, createFunction as createFunctionAPI, startPerformanceTest, sendPerformanceTest } from '@/api/fission';
+import { useNamespace, type FunctionItem } from "./hooks/useNamespace";
+import {
+  createEnvironment,
+  createPackage,
+  createFunction as createFunctionAPI,
+  startPerformanceTest,
+  sendPerformanceTest,
+} from "@/api/fission";
 
 interface ConcurrencyResults {
   peakTPS: string;
@@ -438,8 +730,8 @@ const selectedFunction = ref<FunctionItem | null>(null);
 
 // 性能状态
 const performanceStatus = ref({
-  concurrency: 'pending', // pending, testing, achieved, failed
-  throughput: 'pending'
+  concurrency: "pending", // pending, testing, achieved, failed
+  throughput: "pending",
 });
 
 // 并发测试相关
@@ -453,7 +745,7 @@ const concurrencyRealTimeData = ref<number[]>([]);
 const throughputTesting = ref(false);
 const throughputProgress = ref(0);
 const throughputResults = ref<ThroughputResults | null>(null);
-const throughputCurrentPackage = ref<string | number>(''); // 支持字符串和数字类型
+const throughputCurrentPackage = ref<string | number>(""); // 支持字符串和数字类型
 const throughputRealTimeData = ref<number[]>([]);
 
 // 创建函数步骤控制
@@ -557,7 +849,7 @@ const showDetails = (func: FunctionItem) => {
 const refreshFunctions = async () => {
   if (selectedNamespace.value) {
     await fetchFunctionsByNamespace(selectedNamespace.value);
-    ElMessage.success('函数列表已刷新');
+    ElMessage.success("函数列表已刷新");
   }
 };
 
@@ -566,7 +858,7 @@ const nextStep = async () => {
   if (createStep.value === 0) {
     // 验证环境配置
     if (!envForm.name || !envForm.image) {
-      ElMessage.error('请填写环境名称和运行时镜像');
+      ElMessage.error("请填写环境名称和运行时镜像");
       return;
     }
 
@@ -577,35 +869,35 @@ const nextStep = async () => {
         apiVersion: "fission.io/v1",
         kind: "Environment",
         metadata: {
-          name: envForm.name
+          name: envForm.name,
         },
         spec: {
           version: envForm.version,
           poolsize: envForm.poolsize,
           runtime: {
-            image: envForm.image
-          }
-        }
+            image: envForm.image,
+          },
+        },
       };
 
       // 调用创建环境的API
       await createEnvironment(selectedNamespace.value, envData);
-      console.log('创建环境:', envData);
+      console.log("创建环境:", envData);
 
       // 更新包表单中的环境名称
       pkgForm.environment = envForm.name;
 
       createStep.value = 1;
-      ElMessage.success('环境创建成功，请配置包信息');
+      ElMessage.success("环境创建成功，请配置包信息");
     } catch (error) {
-      ElMessage.error('环境创建失败');
+      ElMessage.error("环境创建失败");
     } finally {
       stepLoading.value = false;
     }
   } else if (createStep.value === 1) {
     // 验证包配置
     if (!pkgForm.name || !pkgForm.code) {
-      ElMessage.error('请填写包名称和函数代码');
+      ElMessage.error("请填写包名称和函数代码");
       return;
     }
 
@@ -619,27 +911,27 @@ const nextStep = async () => {
         spec: {
           environment: {
             name: pkgForm.environment,
-            namespace: selectedNamespace.value
+            namespace: selectedNamespace.value,
           },
           deployment: {
             type: "literal",
-            literal: stringToAscii(pkgForm.code)
-          }
-        }
+            literal: stringToAscii(pkgForm.code),
+          },
+        },
       };
 
       // 调用创建包的API
       await createPackage(selectedNamespace.value, pkgData);
-      console.log('创建包:', pkgData);
+      console.log("创建包:", pkgData);
 
       // 更新函数表单中的包名称
       fnForm.package = pkgForm.name;
       fnForm.environment = pkgForm.environment;
 
       createStep.value = 2;
-      ElMessage.success('包创建成功，请配置函数信息');
+      ElMessage.success("包创建成功，请配置函数信息");
     } catch (error) {
-      ElMessage.error('包创建失败');
+      ElMessage.error("包创建失败");
     } finally {
       stepLoading.value = false;
     }
@@ -654,7 +946,7 @@ const prevStep = () => {
 
 // 将函数代码转换为ASCII码数组
 const stringToAscii = (str: string): number[] => {
-  return Array.from(str).map(char => char.charCodeAt(0));
+  return Array.from(str).map((char) => char.charCodeAt(0));
 };
 
 const deleteFunction = async (func: FunctionItem) => {
@@ -667,7 +959,9 @@ const deleteFunction = async (func: FunctionItem) => {
         customClass: "common-messagebox",
       }
     );
-    const index = functions.value.findIndex((f) => f.metadata.name === func.metadata.name);
+    const index = functions.value.findIndex(
+      (f) => f.metadata.name === func.metadata.name
+    );
     if (index > -1) {
       functions.value.splice(index, 1);
       ElMessage.success(`函数 "${func.metadata.name}" 已删除`);
@@ -694,14 +988,14 @@ const createFunction = async () => {
       spec: {
         environment: {
           name: fnForm.environment,
-          namespace: selectedNamespace.value
+          namespace: selectedNamespace.value,
         },
         package: {
           packageref: {
             name: fnForm.package,
-            namespace: selectedNamespace.value
+            namespace: selectedNamespace.value,
           },
-          functionName: fnForm.functionName
+          functionName: fnForm.functionName,
         },
         concurrency: fnForm.concurrency,
         functionTimeout: fnForm.functionTimeout,
@@ -714,15 +1008,15 @@ const createFunction = async () => {
             MaxScale: 0,
             MinScale: 0,
             SpecializationTimeout: 120,
-            TargetCPUPercent: 0
-          }
-        }
-      }
+            TargetCPUPercent: 0,
+          },
+        },
+      },
     };
 
     // 调用创建函数的API
     await createFunctionAPI(selectedNamespace.value, fnData);
-    console.log('创建函数:', fnData);
+    console.log("创建函数:", fnData);
 
     ElMessage.success("函数创建成功");
     createDialogVisible.value = false;
@@ -771,7 +1065,7 @@ const startConcurrencyTest = async () => {
   concurrencyTesting.value = true;
   concurrencyProgress.value = 0;
   concurrencyRealTimeData.value = [];
-  performanceStatus.value.concurrency = 'testing';
+  performanceStatus.value.concurrency = "testing";
 
   // 初始化图表
   await nextTick();
@@ -784,14 +1078,14 @@ const startConcurrencyTest = async () => {
 
   try {
     // 发送POST请求启动性能测试
-    const response = await fetch('http://127.0.0.1:30081/kvstore', {
-      method: 'POST',
+    const response = await fetch("http://127.0.0.1:30081/kvstore", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        servers: ["10.15.16.40:3088", "10.15.16.141:3088", "10.15.17.215:3088"]
-      })
+        servers: ["10.15.16.40:3088", "10.15.16.141:3088", "10.15.17.215:3088"],
+      }),
     });
 
     if (!response.ok) {
@@ -800,18 +1094,18 @@ const startConcurrencyTest = async () => {
 
     // 检查响应是否支持流式读取
     if (!response.body) {
-      throw new Error('ReadableStream not supported in this browser.');
+      throw new Error("ReadableStream not supported in this browser.");
     }
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let buffer = '';
+    let buffer = "";
 
     // 设置超时定时器，防止测试卡住
     const timeoutId = setTimeout(() => {
       reader.cancel();
       finishConcurrencyTest();
-      ElMessage.error('测试超时，已自动结束');
+      ElMessage.error("测试超时，已自动结束");
     }, 35000); // 35秒超时，比预期的30秒多5秒缓冲
 
     // 读取流式数据
@@ -827,12 +1121,12 @@ const startConcurrencyTest = async () => {
       buffer += decoder.decode(value, { stream: true });
 
       // 处理缓冲区中的完整数据行
-      let lines = buffer.split('\n');
-      buffer = lines.pop() || ''; // 保留最后一个可能不完整的行
+      let lines = buffer.split("\n");
+      buffer = lines.pop() || ""; // 保留最后一个可能不完整的行
 
       for (let line of lines) {
         // 去除前缀 "data: " 并解析JSON
-        if (line.startsWith('data: ')) {
+        if (line.startsWith("data: ")) {
           try {
             const jsonStr = line.substring(6); // 移除 "data: " 前缀
             const data = JSON.parse(jsonStr);
@@ -847,17 +1141,27 @@ const startConcurrencyTest = async () => {
                 currentDataPoints++;
 
                 // 计算进度（基于已接收的数据点数）
-                concurrencyProgress.value = Math.min((currentDataPoints / expectedDataPoints) * 100, 100);
+                concurrencyProgress.value = Math.min(
+                  (currentDataPoints / expectedDataPoints) * 100,
+                  100
+                );
 
                 // 更新图表
                 updateConcurrencyChart();
 
                 // 输出调试信息
-                console.log(`接收到TPS数据: ${tpsValue}, 进度: ${concurrencyProgress.value.toFixed(1)}%`);
+                console.log(
+                  `接收到TPS数据: ${tpsValue}, 进度: ${concurrencyProgress.value.toFixed(
+                    1
+                  )}%`
+                );
 
                 // 检查是否已接收足够的数据点或者时间已到
                 const elapsedTime = (Date.now() - startTime) / 1000;
-                if (currentDataPoints >= expectedDataPoints || elapsedTime >= totalDuration) {
+                if (
+                  currentDataPoints >= expectedDataPoints ||
+                  elapsedTime >= totalDuration
+                ) {
                   clearTimeout(timeoutId);
                   reader.cancel();
                   break;
@@ -865,7 +1169,7 @@ const startConcurrencyTest = async () => {
               }
             }
           } catch (parseError) {
-            console.warn('解析数据行失败:', line, parseError);
+            console.warn("解析数据行失败:", line, parseError);
           }
         }
       }
@@ -873,13 +1177,12 @@ const startConcurrencyTest = async () => {
 
     // 测试完成
     finishConcurrencyTest();
-
   } catch (error) {
-    console.error('并发测试失败:', error);
+    console.error("并发测试失败:", error);
 
     // 错误处理
     concurrencyTesting.value = false;
-    performanceStatus.value.concurrency = 'failed';
+    performanceStatus.value.concurrency = "failed";
 
     // 安全的错误信息提取
     // const errorMessage = error?.message || error?.toString() || '未知错误';
@@ -914,32 +1217,38 @@ const finishConcurrencyTest = () => {
 
   // 检查是否有有效数据
   if (concurrencyRealTimeData.value.length === 0) {
-    ElMessage.error('未接收到有效的测试数据');
+    ElMessage.error("未接收到有效的测试数据");
     concurrencyTesting.value = false;
-    performanceStatus.value.concurrency = 'failed';
+    performanceStatus.value.concurrency = "failed";
     return;
   }
 
   // 计算峰值和平均TPS
   const peakTPS = Math.max(...concurrencyRealTimeData.value);
-  const avgTPS = Math.floor(concurrencyRealTimeData.value.reduce((a, b) => a + b, 0) / concurrencyRealTimeData.value.length);
+  const avgTPS = Math.floor(
+    concurrencyRealTimeData.value.reduce((a, b) => a + b, 0) /
+      concurrencyRealTimeData.value.length
+  );
 
   // 设置测试结果
   concurrencyResults.value = {
     peakTPS: peakTPS.toLocaleString(),
     avgTPS: avgTPS.toLocaleString(),
-    finalData: [...concurrencyRealTimeData.value]
+    finalData: [...concurrencyRealTimeData.value],
   };
 
   // 更新性能状态（目标是10万TPS）
-  performanceStatus.value.concurrency = peakTPS >= 100000 ? 'achieved' : 'failed';
+  performanceStatus.value.concurrency =
+    peakTPS >= 100000 ? "achieved" : "failed";
 
   // 设置测试完成状态
   concurrencyTesting.value = false;
   concurrencyProgress.value = 100;
 
   // 显示完成消息
-  ElMessage.success(`并发处理能力测试完成！峰值TPS: ${peakTPS.toLocaleString()}`);
+  ElMessage.success(
+    `并发处理能力测试完成！峰值TPS: ${peakTPS.toLocaleString()}`
+  );
 
   // 输出详细结果到控制台
   console.log("测试结果详情:", {
@@ -947,31 +1256,31 @@ const finishConcurrencyTest = () => {
     peakTPS: peakTPS,
     avgTPS: avgTPS,
     allData: concurrencyRealTimeData.value,
-    achieved: peakTPS >= 100000
+    achieved: peakTPS >= 100000,
   });
 };
 const startThroughputTest = async () => {
   throughputTesting.value = true;
   throughputProgress.value = 0;
   throughputRealTimeData.value = [];
-  throughputCurrentPackage.value = '';
-  performanceStatus.value.throughput = 'testing';
+  throughputCurrentPackage.value = "";
+  performanceStatus.value.throughput = "testing";
 
   // 初始化图表
   await nextTick();
   initThroughputChart();
 
   try {
-    ElMessage.info('开始数据吞吐率测试...');
+    ElMessage.info("开始数据吞吐率测试...");
     throughputProgress.value = 10;
 
     console.log("正在启动 sender 和 receiver 端点...");
-    const senderPromise = fetch('/api/topic3-pro-kp-sender');
-    const receiverPromise = fetch('/api/topic3-pro-kp-receiver');
+    const senderPromise = fetch("http://127.0.0.1:30085/topic3-pro-kp-sender");
+    const receiverPromise = fetch("http://127.0.0.1:30085/topic3-pro-kp-receiver");
 
     const [senderResponse, receiverResponse] = await Promise.all([
       senderPromise,
-      receiverPromise
+      receiverPromise,
     ]);
 
     // 检查两个端点的响应是否成功
@@ -979,73 +1288,81 @@ const startThroughputTest = async () => {
       throw new Error(`Sender 端点启动失败! 状态: ${senderResponse.status}`);
     }
     if (!receiverResponse.ok) {
-      throw new Error(`Receiver 端点启动失败! 状态: ${receiverResponse.status}`);
+      throw new Error(
+        `Receiver 端点启动失败! 状态: ${receiverResponse.status}`
+      );
     }
 
     console.log("Sender 和 Receiver 端点已成功启动，开始性能测试...");
 
     const [senderData, receiverData] = await Promise.all([
       senderResponse.json(),
-      receiverResponse.json()
+      receiverResponse.json(),
     ]);
 
     throughputProgress.value = 70;
 
-    console.log('Sender 数据:', senderData);
-    console.log('Receiver 数据:', receiverData);
+    console.log("Sender 数据:", senderData);
+    console.log("Receiver 数据:", receiverData);
 
     // 选择数据源
     let data = senderData;
     if (!Array.isArray(senderData) || senderData.length === 0) {
       if (Array.isArray(receiverData) && receiverData.length > 0) {
         data = receiverData;
-        console.log('使用 receiver 数据作为主要数据源');
+        console.log("使用 receiver 数据作为主要数据源");
       } else {
-        throw new Error('两个端点都没有返回有效数据');
+        throw new Error("两个端点都没有返回有效数据");
       }
     } else {
-      console.log('使用 sender 数据作为主要数据源');
+      console.log("使用 sender 数据作为主要数据源");
     }
 
     if (!Array.isArray(data) || data.length === 0) {
-      throw new Error('未接收到有效的测试数据');
+      throw new Error("未接收到有效的测试数据");
     }
 
     // 处理测试数据
     const processedData = data
-      .filter(item => {
-        return item &&
-          typeof item.pkt_kb === 'number' &&
-          typeof item.throughput_gbps === 'number' &&
+      .filter((item) => {
+        return (
+          item &&
+          typeof item.pkt_kb === "number" &&
+          typeof item.throughput_gbps === "number" &&
           !isNaN(item.pkt_kb) &&
-          !isNaN(item.throughput_gbps);
+          !isNaN(item.throughput_gbps)
+        );
       })
-      .map(item => ({
+      .map((item) => ({
         pkt_kb: item.pkt_kb,
         throughput_gbps: parseFloat(item.throughput_gbps.toFixed(2)),
         packets_per_sec: item.packets_per_sec,
-        duration_sec: item.duration_sec
+        duration_sec: item.duration_sec,
       }))
       .sort((a, b) => a.pkt_kb - b.pkt_kb);
 
     if (processedData.length === 0) {
-      throw new Error('没有有效的测试数据');
+      throw new Error("没有有效的测试数据");
     }
 
     // 更新状态数据
-    throughputRealTimeData.value = processedData.map(item => item.throughput_gbps);
+    throughputRealTimeData.value = processedData.map(
+      (item) => item.throughput_gbps
+    );
 
     // 计算统计结果
-    const throughputValues = processedData.map(item => item.throughput_gbps);
+    const throughputValues = processedData.map((item) => item.throughput_gbps);
     const peakThroughput = Math.max(...throughputValues);
-    const avgThroughput = (throughputValues.reduce((a, b) => a + b, 0) / throughputValues.length).toFixed(1);
+    const avgThroughput = (
+      throughputValues.reduce((a, b) => a + b, 0) / throughputValues.length
+    ).toFixed(1);
 
     // 设置测试结果
     throughputResults.value = {
       peakThroughput: peakThroughput.toFixed(1),
       avgThroughput: avgThroughput,
       finalData: [...throughputValues],
-      detailedData: processedData
+      detailedData: processedData,
     };
 
     // 更新图表 - 关键步骤
@@ -1054,26 +1371,30 @@ const startThroughputTest = async () => {
     throughputProgress.value = 100;
 
     // 更新性能状态
-    performanceStatus.value.throughput = peakThroughput >= 30 ? 'achieved' : 'failed';
+    performanceStatus.value.throughput =
+      peakThroughput >= 30 ? "achieved" : "failed";
     throughputTesting.value = false;
 
     // 显示完成消息
-    const statusText = peakThroughput >= 30 ? '达标' : '未达标';
-    ElMessage.success(`数据吞吐率测试完成！峰值: ${peakThroughput.toFixed(1)} Gb/s (${statusText})`);
+    const statusText = peakThroughput >= 30 ? "达标" : "未达标";
+    ElMessage.success(
+      `数据吞吐率测试完成！峰值: ${peakThroughput.toFixed(
+        1
+      )} Gb/s (${statusText})`
+    );
 
     console.log("吞吐率测试结果详情:", {
       dataPoints: processedData.length,
       peakThroughput: peakThroughput,
       avgThroughput: parseFloat(avgThroughput),
       achieved: peakThroughput >= 30,
-      detailedData: processedData
+      detailedData: processedData,
     });
-
   } catch (error) {
-    console.error('数据吞吐率测试失败:', error);
+    console.error("数据吞吐率测试失败:", error);
 
     throughputTesting.value = false;
-    performanceStatus.value.throughput = 'failed';
+    performanceStatus.value.throughput = "failed";
     throughputProgress.value = 0;
   }
 };
@@ -1092,7 +1413,19 @@ const initConcurrencyChart = async () => {
       concurrencyChartInstance = new Chart(concurrencyChart.value, {
         type: "line",
         data: {
-          labels: ['0s', '3s', '6s', '9s', '12s', '15s', '18s', '21s', '24s', '27s', '30s'], // 预设时间标签
+          labels: [
+            "0s",
+            "3s",
+            "6s",
+            "9s",
+            "12s",
+            "15s",
+            "18s",
+            "21s",
+            "24s",
+            "27s",
+            "30s",
+          ], // 预设时间标签
           datasets: [
             {
               label: "实时TPS",
@@ -1119,7 +1452,7 @@ const initConcurrencyChart = async () => {
           plugins: {
             legend: {
               display: true,
-              position: 'top',
+              position: "top",
             },
           },
           scales: {
@@ -1128,15 +1461,15 @@ const initConcurrencyChart = async () => {
               max: 120000,
               title: {
                 display: true,
-                text: 'TPS (每秒事务数)'
-              }
+                text: "TPS (每秒事务数)",
+              },
             },
             x: {
               title: {
                 display: true,
-                text: '测试时间'
-              }
-            }
+                text: "测试时间",
+              },
+            },
           },
         },
       });
@@ -1148,12 +1481,19 @@ const initConcurrencyChart = async () => {
 
 const updateConcurrencyChart = () => {
   if (concurrencyChartInstance) {
-    const labels = Array.from({ length: concurrencyRealTimeData.value.length }, (_, i) => `${i * 3}s`);
+    const labels = Array.from(
+      { length: concurrencyRealTimeData.value.length },
+      (_, i) => `${i * 3}s`
+    );
 
     concurrencyChartInstance.data.labels = labels;
-    concurrencyChartInstance.data.datasets[0].data = [...concurrencyRealTimeData.value];
-    concurrencyChartInstance.data.datasets[1].data = new Array(labels.length).fill(100000);
-    concurrencyChartInstance.update('none');
+    concurrencyChartInstance.data.datasets[0].data = [
+      ...concurrencyRealTimeData.value,
+    ];
+    concurrencyChartInstance.data.datasets[1].data = new Array(
+      labels.length
+    ).fill(100000);
+    concurrencyChartInstance.update("none");
   }
 };
 
@@ -1170,7 +1510,7 @@ const initThroughputChart = async () => {
       throughputChartInstance = new Chart(throughputChart.value, {
         type: "line",
         data: {
-          labels: ['4', '8', '16', '32'], // 包大小标签 (pkt_kb)
+          labels: ["4", "8", "16", "32"], // 包大小标签 (pkt_kb)
           datasets: [
             {
               label: "吞吐率 (Gb/s)",
@@ -1199,7 +1539,7 @@ const initThroughputChart = async () => {
           plugins: {
             legend: {
               display: true,
-              position: 'top',
+              position: "top",
             },
             tooltip: {
               callbacks: {
@@ -1208,9 +1548,9 @@ const initThroughputChart = async () => {
                     return `吞吐率: ${context.parsed.y.toFixed(2)} Gb/s`;
                   }
                   return context.dataset.label;
-                }
-              }
-            }
+                },
+              },
+            },
           },
           scales: {
             y: {
@@ -1218,15 +1558,15 @@ const initThroughputChart = async () => {
               max: 40, // 固定Y轴最大值为40
               title: {
                 display: true,
-                text: '吞吐率 (Gb/s)'
-              }
+                text: "吞吐率 (Gb/s)",
+              },
             },
             x: {
               title: {
                 display: true,
-                text: '包大小 (KB)'
-              }
-            }
+                text: "包大小 (KB)",
+              },
+            },
           },
         },
       });
@@ -1239,7 +1579,7 @@ const initThroughputChart = async () => {
 // 更新吞吐率图表函数，支持可选参数
 const updateThroughputChart = (processedData?: ProcessedTestItem[]) => {
   if (!throughputChartInstance) {
-    console.warn('图表实例不存在，无法更新');
+    console.warn("图表实例不存在，无法更新");
     return;
   }
 
@@ -1247,19 +1587,25 @@ const updateThroughputChart = (processedData?: ProcessedTestItem[]) => {
 
   if (processedData && Array.isArray(processedData)) {
     // 新版本：使用传入的 processedData
-    labels = processedData.map((item: ProcessedTestItem) => item.pkt_kb.toString());
-    throughputData = processedData.map((item: ProcessedTestItem) => item.throughput_gbps);
+    labels = processedData.map((item: ProcessedTestItem) =>
+      item.pkt_kb.toString()
+    );
+    throughputData = processedData.map(
+      (item: ProcessedTestItem) => item.throughput_gbps
+    );
   } else {
     // 旧版本：使用 throughputRealTimeData 和固定的包大小
     const packageSizes = [4, 8, 16, 32];
-    labels = packageSizes.slice(0, throughputRealTimeData.value.length).map(size => size.toString());
+    labels = packageSizes
+      .slice(0, throughputRealTimeData.value.length)
+      .map((size) => size.toString());
     throughputData = [...throughputRealTimeData.value];
   }
 
   console.log("更新吞吐率图表:", {
     labels: labels,
     data: throughputData,
-    chartInstance: !!throughputChartInstance
+    chartInstance: !!throughputChartInstance,
   });
 
   // 更新图表数据
@@ -1267,10 +1613,12 @@ const updateThroughputChart = (processedData?: ProcessedTestItem[]) => {
   throughputChartInstance.data.datasets[0].data = throughputData;
 
   // 更新目标线数据（保持30 Gb/s的目标线）
-  throughputChartInstance.data.datasets[1].data = new Array(labels.length).fill(30);
+  throughputChartInstance.data.datasets[1].data = new Array(labels.length).fill(
+    30
+  );
 
   // 更新图表
-  throughputChartInstance.update('none');
+  throughputChartInstance.update("none");
 };
 
 // 清理函数
@@ -1498,13 +1846,17 @@ onUnmounted(() => {
     overflow: hidden;
 
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       height: 4px;
-      background: linear-gradient(90deg, var(--emdc-color-primary) 0%, var(--emdc-hover-color-primary) 100%);
+      background: linear-gradient(
+        90deg,
+        var(--emdc-color-primary) 0%,
+        var(--emdc-hover-color-primary) 100%
+      );
     }
 
     &:hover {
@@ -1516,7 +1868,11 @@ onUnmounted(() => {
     .metric-icon {
       width: 60px;
       height: 60px;
-      background: linear-gradient(135deg, var(--emdc-color-primary) 0%, var(--emdc-hover-color-primary) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--emdc-color-primary) 0%,
+        var(--emdc-hover-color-primary) 100%
+      );
       border-radius: 12px;
       display: flex;
       align-items: center;
