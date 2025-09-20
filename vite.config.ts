@@ -37,6 +37,10 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/throughput/, ''),
       },
+      '/api/fission': {
+        target: 'http://127.0.0.1:30081',
+        changeOrigin: true,
+      },
     },
   },
   css: {
