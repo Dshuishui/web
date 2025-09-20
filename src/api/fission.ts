@@ -19,10 +19,16 @@ const getAuthHeaders = () => {
 
 // 获取指定命名空间下的所有函数
 export const getFunctionsByNamespace = async (namespace: string) => {
-  const response = await fetch(`/api/fission/v1/namespaces/${namespace}/functions`, {
+  const url = `/api/fission/v1/namespaces/${namespace}/functions`;
+  console.log('发起请求:', url);
+  
+  const response = await fetch(url, {
     method: 'GET',
     headers: getAuthHeaders(),
   });
+  
+  console.log('响应状态:', response.status, response.statusText);
+  console.log('响应URL:', response.url);
   
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
