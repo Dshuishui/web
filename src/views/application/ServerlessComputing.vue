@@ -10,16 +10,17 @@
       <div class="intro-divider"></div>
 
       <div class="research-section">
-        <h2>研究背景与核心技术</h2>
+        <h2>课题进展与核心成果</h2>
         <div class="research-content">
           <p>
-            本项目致力于构建面向边缘微小型数据中心的无服务器计算平台，重点解决边缘环境下的函数计算性能与资源管理挑战。
+            <strong>课题名称：</strong>服务器无感框架和协同调度
           </p>
           <p>
-            核心技术包括：强隔离弹性一致性代数系统设计、函数级动态资源配置机制、高性能函数间通信框架等关键技术，实现了边缘环境下的高并发、低延迟函数计算服务。
+            本课题聚焦轻量化服务器无感资源管理调度框架与强隔离一致性协同演进计算系统研究，已完成中期考核全部指标。成功构建面向WebAssembly的高并发轻量化沙箱运行时技术，实现函数多维度资源配置模型与弹性启动部署；建立强隔离弹性一致性代数系统，节点并发处理能力达10万TPS；开发函数间直接通信框架，端到端数据吞吐率超30Gb/s。
           </p>
           <p>
-            技术创新点：提供面向边缘服务器无感的强隔离弹性一致性调度算法，实现复杂函数工作流的智能资源管理与编排，构建了高效的函数间直接通信机制。
+            <strong>核心技术突破：</strong>①提出非侵入式微服务时空画像方法，实现异构计算环境拓扑表征；②构建函数级协同编排的微小型混合服务优化体系；③研发基于异构拓扑表征的演进计算框架。项目成果获TPDS
+            2024年度全球唯一最佳论文奖，已发表高水平论文7篇、申请发明专利4项，培养博士4名、硕士6名。
           </p>
         </div>
       </div>
@@ -35,46 +36,24 @@
             <div class="function-header-controls">
               <div class="namespace-selector">
                 <span>选择命名空间:</span>
-                <el-select
-                  v-model="selectedNamespace"
-                  class="common-select"
-                  @change="changeNamespace"
-                >
-                  <el-option
-                    v-for="ns in namespaces"
-                    :key="ns.name"
-                    :label="ns.name"
-                    :value="ns.name"
-                  />
+                <el-select v-model="selectedNamespace" class="common-select" @change="changeNamespace">
+                  <el-option v-for="ns in namespaces" :key="ns.name" :label="ns.name" :value="ns.name" />
                 </el-select>
               </div>
               <div class="function-header-info">
-                <span class="current-namespace"
-                  >当前命名空间: <strong>{{ selectedNamespace }}</strong></span
-                >
-                <span class="function-count"
-                  >函数数量: <strong>{{ functions.length }}</strong></span
-                >
-                <span class="loading-status" v-if="functionsLoading"
-                  >(加载中...)</span
-                >
+                <span class="current-namespace">当前命名空间: <strong>{{ selectedNamespace }}</strong></span>
+                <span class="function-count">函数数量: <strong>{{ functions.length }}</strong></span>
+                <span class="loading-status" v-if="functionsLoading">(加载中...)</span>
               </div>
             </div>
             <div class="function-actions-header">
-              <el-button
-                class="-emdc-button-plain"
-                @click="refreshFunctions"
-                :loading="functionsLoading"
-              >
+              <el-button class="-emdc-button-plain" @click="refreshFunctions" :loading="functionsLoading">
                 <el-icon>
                   <Loading />
                 </el-icon>
                 刷新
               </el-button>
-              <el-button
-                class="-emdc-button-primary"
-                @click="createDialogVisible = true"
-              >
+              <el-button class="-emdc-button-primary" @click="createDialogVisible = true">
                 <el-icon>
                   <Plus />
                 </el-icon>
@@ -84,38 +63,13 @@
           </div>
 
           <!-- 函数表格 -->
-          <el-table
-            :data="functions"
-            class="common-table"
-            stripe
-            v-loading="functionsLoading"
-            v-if="functions.length > 0"
-          >
-            <el-table-column
-              prop="metadata.name"
-              label="函数名称"
-              width="180"
-            />
-            <el-table-column
-              prop="spec.environment.name"
-              label="环境"
-              width="120"
-            />
-            <el-table-column
-              prop="metadata.namespace"
-              label="命名空间"
-              width="120"
-            />
-            <el-table-column
-              prop="spec.concurrency"
-              label="并发数"
-              width="100"
-            />
-            <el-table-column
-              prop="spec.functionTimeout"
-              label="超时时间"
-              width="100"
-            >
+          <el-table :data="functions" class="common-table" stripe v-loading="functionsLoading"
+            v-if="functions.length > 0">
+            <el-table-column prop="metadata.name" label="函数名称" width="180" />
+            <el-table-column prop="spec.environment.name" label="环境" width="120" />
+            <el-table-column prop="metadata.namespace" label="命名空间" width="120" />
+            <el-table-column prop="spec.concurrency" label="并发数" width="100" />
+            <el-table-column prop="spec.functionTimeout" label="超时时间" width="100">
               <template #default="scope">
                 {{ scope.row.spec.functionTimeout }}s
               </template>
@@ -141,18 +95,10 @@
             <el-table-column label="操作" width="200">
               <template #default="scope">
                 <div class="function-actions">
-                  <el-button
-                    class="-emdc-button-plain"
-                    size="small"
-                    @click="showDetails(scope.row)"
-                  >
+                  <el-button class="-emdc-button-plain" size="small" @click="showDetails(scope.row)">
                     详情
                   </el-button>
-                  <el-button
-                    type="danger"
-                    size="small"
-                    @click="deleteFunction(scope.row)"
-                  >
+                  <el-button type="danger" size="small" @click="deleteFunction(scope.row)">
                     删除
                   </el-button>
                 </div>
@@ -161,10 +107,7 @@
           </el-table>
 
           <!-- 空状态显示 -->
-          <div
-            v-if="!functionsLoading && functions.length === 0"
-            class="empty-state"
-          >
+          <div v-if="!functionsLoading && functions.length === 0" class="empty-state">
             <el-empty description="当前命名空间下暂无函数" :image-size="120">
               <el-button type="primary" @click="createDialogVisible = true">
                 创建第一个函数
@@ -199,16 +142,11 @@
                   <span class="unit">TPS</span>
                 </div>
                 <p class="metric-desc">函数级强隔离弹性一致性调度</p>
-                <div
-                  class="metric-status"
-                  :class="performanceStatus.concurrency"
-                >
+                <div class="metric-status" :class="performanceStatus.concurrency">
                   <el-icon v-if="performanceStatus.concurrency === 'achieved'">
                     <Check />
                   </el-icon>
-                  <el-icon
-                    v-else-if="performanceStatus.concurrency === 'testing'"
-                  >
+                  <el-icon v-else-if="performanceStatus.concurrency === 'testing'">
                     <Loading />
                   </el-icon>
                   <el-icon v-else>
@@ -216,7 +154,7 @@
                   </el-icon>
                   <span>{{
                     getStatusText(performanceStatus.concurrency)
-                  }}</span>
+                    }}</span>
                 </div>
               </div>
             </div>
@@ -234,16 +172,11 @@
                   <span class="unit">Gb/s</span>
                 </div>
                 <p class="metric-desc">函数间直接通信端到端性能</p>
-                <div
-                  class="metric-status"
-                  :class="performanceStatus.throughput"
-                >
+                <div class="metric-status" :class="performanceStatus.throughput">
                   <el-icon v-if="performanceStatus.throughput === 'achieved'">
                     <Check />
                   </el-icon>
-                  <el-icon
-                    v-else-if="performanceStatus.throughput === 'testing'"
-                  >
+                  <el-icon v-else-if="performanceStatus.throughput === 'testing'">
                     <Loading />
                   </el-icon>
                   <el-icon v-else>
@@ -266,19 +199,12 @@
 
               <div class="chart-section">
                 <div class="chart-wrapper">
-                  <canvas
-                    ref="concurrencyChart"
-                    width="400"
-                    height="250"
-                  ></canvas>
+                  <canvas ref="concurrencyChart" width="400" height="250"></canvas>
                 </div>
 
                 <div class="test-control">
                   <div v-if="concurrencyTesting" class="test-progress">
-                    <el-progress
-                      :percentage="concurrencyProgress"
-                      :show-text="false"
-                    />
+                    <el-progress :percentage="concurrencyProgress" :show-text="false" />
                     <p>
                       测试进行中... {{ concurrencyProgress.toFixed(0) }}% ({{
                         Math.floor((concurrencyProgress * 30) / 100)
@@ -287,11 +213,7 @@
                   </div>
 
                   <div class="test-actions">
-                    <el-button
-                      class="-emdc-button-primary"
-                      :loading="concurrencyTesting"
-                      @click="startConcurrencyTest"
-                    >
+                    <el-button class="-emdc-button-primary" :loading="concurrencyTesting" @click="startConcurrencyTest">
                       <el-icon>
                         <CaretRight />
                       </el-icon>
@@ -299,14 +221,10 @@
                     </el-button>
 
                     <div v-if="concurrencyResults" class="test-result-summary">
-                      <span class="result-item"
-                        >峰值TPS:
-                        <strong>{{ concurrencyResults.peakTPS }}</strong></span
-                      >
-                      <span class="result-item"
-                        >平均TPS:
-                        <strong>{{ concurrencyResults.avgTPS }}</strong></span
-                      >
+                      <span class="result-item">峰值TPS:
+                        <strong>{{ concurrencyResults.peakTPS }}</strong></span>
+                      <span class="result-item">平均TPS:
+                        <strong>{{ concurrencyResults.avgTPS }}</strong></span>
                     </div>
                   </div>
                 </div>
@@ -322,19 +240,12 @@
 
               <div class="chart-section">
                 <div class="chart-wrapper">
-                  <canvas
-                    ref="throughputChart"
-                    width="400"
-                    height="250"
-                  ></canvas>
+                  <canvas ref="throughputChart" width="400" height="250"></canvas>
                 </div>
 
                 <div class="test-control">
                   <div v-if="throughputTesting" class="test-progress">
-                    <el-progress
-                      :percentage="throughputProgress"
-                      :show-text="false"
-                    />
+                    <el-progress :percentage="throughputProgress" :show-text="false" />
                     <p>
                       测试进行中... {{ throughputProgress.toFixed(0) }}% ({{
                         throughputCurrentPackage
@@ -344,11 +255,7 @@
                   </div>
 
                   <div class="test-actions">
-                    <el-button
-                      class="-emdc-button-primary"
-                      :loading="throughputTesting"
-                      @click="startThroughputTest"
-                    >
+                    <el-button class="-emdc-button-primary" :loading="throughputTesting" @click="startThroughputTest">
                       <el-icon>
                         <CaretRight />
                       </el-icon>
@@ -362,25 +269,223 @@
                     </p>
 
                     <div v-if="throughputResults" class="test-result-summary">
-                      <span class="result-item"
-                        >峰值吞吐:
-                        <strong
-                          >{{ throughputResults.peakThroughput }} Gb/s</strong
-                        ></span
-                      >
-                      <span class="result-item"
-                        >平均吞吐:
-                        <strong
-                          >{{ throughputResults.avgThroughput }} Gb/s</strong
-                        ></span
-                      >
-                      <span class="result-item"
-                        >测试包数:
+                      <span class="result-item">峰值吞吐:
+                        <strong>{{ throughputResults.peakThroughput }} Gb/s</strong></span>
+                      <span class="result-item">平均吞吐:
+                        <strong>{{ throughputResults.avgThroughput }} Gb/s</strong></span>
+                      <span class="result-item">测试包数:
                         <strong>{{
                           throughputResults.finalData.length
-                        }}</strong></span
-                      >
+                          }}</strong></span>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-tab-pane>
+      <!-- 项目成果Tab -->
+      <el-tab-pane label="项目成果" name="achievements">
+        <div class="content-panel achievements-panel">
+          <div class="section-header">
+            <h2 class="section-title">项目成果</h2>
+          </div>
+
+          <div class="achievements-grid">
+            <!-- 左侧：论文和专利 -->
+            <div class="papers-patents-section">
+              <!-- 论文成果 -->
+              <div class="achievement-section">
+                <h3 class="achievement-title">论文成果</h3>
+                <div class="compact-achievement-list">
+                  <div class="compact-item">
+                    <span class="item-number">1</span>
+                    <div class="item-content">
+                      <div class="item-header">
+                        <div class="item-title">Demystifying the Cost of Serverless Computing: Towards a Win-Win Deal
+                        </div>
+                        <div class="item-authors">Fangming Liu, Yipei Niu</div>
+                        <div class="item-venue">IEEE TPDS, 35(1), 2024</div>
+                      </div>
+                      <span class="award-badge">🏆 TPDS 2024最佳论文奖</span>
+                    </div>
+                  </div>
+
+                  <div class="compact-item">
+                    <span class="item-number">2</span>
+                    <div class="item-content">
+                      <div class="item-header">
+                        <div class="item-title">λGrapher: A Resource-Efficient Serverless System for GNN Serving through
+                          Graph
+                          Sharing</div>
+                        <div class="item-authors">Haichuan Hu, et al.</div>
+                        <div class="item-venue">ACM Web Conference, 2024</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="compact-item">
+                    <span class="item-number">3</span>
+                    <div class="item-content">
+                      <div class="item-header">
+                        <div class="item-title">ComboFunc: Joint Resource Combination and Container Placement for
+                          Serverless
+                          Function Scaling</div>
+                        <div class="item-authors">Zhaojie Wen, et al.</div>
+                        <div class="item-venue">IEEE TPDS, 35(11), 2024</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="compact-item">
+                    <span class="item-number">4</span>
+                    <div class="item-content">
+                      <div class="item-header">
+                        <div class="item-title">AsyFunc: A High-Performance Serverless Inference System via Asymmetric
+                          Functions</div>
+                        <div class="item-authors">Qiangyu Pei, et al.</div>
+                        <div class="item-venue">ACM SoCC, 2023</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="compact-item">
+                    <span class="item-number">5</span>
+                    <div class="item-content">
+                      <div class="item-header">
+                        <div class="item-title">Hydis: A Hybrid Consistent KVS with Effective Sync Among Replicas</div>
+                        <div class="item-authors">Junsheng Lou, Zichen Xu</div>
+                        <div class="item-venue">APPT, 2023</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="compact-item">
+                    <span class="item-number">6</span>
+                    <div class="item-content">
+                      <div class="item-header">
+                        <div class="item-title">Edge AI-driven Neural Network Predictions for Replica Sync Optimization
+                        </div>
+                        <div class="item-authors">Zichen Xu, et al.</div>
+                        <div class="item-venue">Applied Soft Computing, 165, 2024</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="compact-item">
+                    <span class="item-number">7</span>
+                    <div class="item-content">
+                      <div class="item-header">
+                        <div class="item-title">Exploring nonintrusive measurements of spatio-temporal portrait of
+                          microservices</div>
+                        <div class="item-authors">Tao Zeng, et al.</div>
+                        <div class="item-venue">SPE, 54(10), 2024</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 专利成果 -->
+              <div class="achievement-section">
+                <h3 class="achievement-title">专利成果</h3>
+                <div class="compact-achievement-list">
+                  <div class="compact-item">
+                    <span class="item-number">1</span>
+                    <div class="item-content">
+                      <div class="item-header">
+                        <div class="item-title">基于异质容器组合的无服务器函数弹性调度方法及系统</div>
+                        <div class="item-authors">温兆捷, 刘方明, 等</div>
+                        <div class="item-venue">专利号: 2024109687817</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="compact-item">
+                    <span class="item-number">2</span>
+                    <div class="item-content">
+                      <div class="item-header">
+                        <div class="item-title">服务器无感框架的冷启动优化方法、系统、设备及介质</div>
+                        <div class="item-authors">傅妍, 徐子晨, 等</div>
+                        <div class="item-venue">专利号: 202410116318</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="compact-item">
+                    <span class="item-number">3</span>
+                    <div class="item-content">
+                      <div class="item-header">
+                        <div class="item-title">服务器无感框架的函数资源管理方法、系统、设备及介质</div>
+                        <div class="item-authors">徐子晨, 孙珍龄, 等</div>
+                        <div class="item-venue">专利号: 202410115981</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="compact-item">
+                    <span class="item-number">4</span>
+                    <div class="item-content">
+                      <div class="item-header">
+                        <div class="item-title">一种具备动态优化复制策略的混合一致性方法及系统</div>
+                        <div class="item-authors">徐子晨, 娄俊升, 董余聪</div>
+                        <div class="item-venue">专利号: 2024100809132</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右侧：人才培养 -->
+            <div class="talent-section">
+              <div class="achievement-section">
+                <h3 class="achievement-title">人才培养</h3>
+
+                <div class="talent-cards">
+                  <div class="talent-card">
+                    <div class="talent-header">
+                      <span class="talent-degree">硕士研究生</span>
+                      <span class="talent-count">6名</span>
+                    </div>
+                    <div class="talent-names">
+                      <span class="name-tag">宋振</span>
+                      <span class="name-tag">袁永杰</span>
+                      <span class="name-tag">胡海川</span>
+                      <span class="name-tag">娄俊升</span>
+                      <span class="name-tag">许可</span>
+                      <span class="name-tag">孙珍龄</span>
+                    </div>
+                  </div>
+
+                  <div class="talent-card">
+                    <div class="talent-header">
+                      <span class="talent-degree">博士研究生</span>
+                      <span class="talent-count">4名</span>
+                    </div>
+                    <div class="talent-names">
+                      <span class="name-tag">牛轶佩</span>
+                      <span class="name-tag">温兆捷</span>
+                      <span class="name-tag">裴强宇</span>
+                      <span class="name-tag">傅妍</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 统计信息 -->
+                <div class="achievement-stats">
+                  <div class="stat-item">
+                    <div class="stat-number">7</div>
+                    <div class="stat-label">篇论文</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">项专利</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-number">10</div>
+                    <div class="stat-label">名学生</div>
                   </div>
                 </div>
               </div>
@@ -391,17 +496,8 @@
     </el-tabs>
 
     <!-- 创建函数对话框 -->
-    <el-dialog
-      v-model="createDialogVisible"
-      title="创建函数"
-      width="800px"
-      class="common-dialog"
-    >
-      <el-steps
-        :active="createStep"
-        finish-status="success"
-        class="create-steps"
-      >
+    <el-dialog v-model="createDialogVisible" title="创建函数" width="800px" class="common-dialog">
+      <el-steps :active="createStep" finish-status="success" class="create-steps">
         <el-step title="创建环境" description="配置运行环境" />
         <el-step title="创建包" description="上传函数代码" />
         <el-step title="创建函数" description="配置函数参数" />
@@ -412,34 +508,16 @@
         <h4>环境配置</h4>
         <el-form :model="envForm" label-width="120px">
           <el-form-item label="环境名称" required>
-            <el-input
-              v-model="envForm.name"
-              placeholder="请输入环境名称，如：python-env"
-              class="common-input"
-            />
+            <el-input v-model="envForm.name" placeholder="请输入环境名称，如：python-env" class="common-input" />
           </el-form-item>
           <el-form-item label="运行时镜像" required>
-            <el-input
-              v-model="envForm.image"
-              placeholder="请输入镜像地址，如：ghcr.io/fission/python-env"
-              class="common-input"
-            />
+            <el-input v-model="envForm.image" placeholder="请输入镜像地址，如：ghcr.io/fission/python-env" class="common-input" />
           </el-form-item>
           <el-form-item label="版本">
-            <el-input-number
-              v-model="envForm.version"
-              :min="1"
-              :max="10"
-              placeholder="3"
-            />
+            <el-input-number v-model="envForm.version" :min="1" :max="10" placeholder="3" />
           </el-form-item>
           <el-form-item label="预热池大小">
-            <el-input-number
-              v-model="envForm.poolsize"
-              :min="0"
-              :max="10"
-              placeholder="1"
-            />
+            <el-input-number v-model="envForm.poolsize" :min="0" :max="10" placeholder="1" />
           </el-form-item>
         </el-form>
       </div>
@@ -449,36 +527,18 @@
         <h4>包配置</h4>
         <el-form :model="pkgForm" label-width="120px">
           <el-form-item label="包名称" required>
-            <el-input
-              v-model="pkgForm.name"
-              placeholder="请输入包名称，如：my-function-pkg"
-              class="common-input"
-            />
+            <el-input v-model="pkgForm.name" placeholder="请输入包名称，如：my-function-pkg" class="common-input" />
           </el-form-item>
           <el-form-item label="环境名称" required>
-            <el-input
-              v-model="pkgForm.environment"
-              :disabled="true"
-              class="common-input"
-            />
+            <el-input v-model="pkgForm.environment" :disabled="true" class="common-input" />
           </el-form-item>
           <el-form-item label="函数代码" required>
-            <el-input
-              v-model="pkgForm.code"
-              type="textarea"
-              :rows="8"
-              placeholder="请输入函数代码，如：
+            <el-input v-model="pkgForm.code" type="textarea" :rows="8" placeholder="请输入函数代码，如：
 def main():
-    return 'Hello World'"
-              class="common-textarea"
-            />
+    return 'Hello World'" class="common-textarea" />
           </el-form-item>
           <el-form-item label="函数入口">
-            <el-input
-              v-model="pkgForm.functionName"
-              placeholder="如：main"
-              class="common-input"
-            />
+            <el-input v-model="pkgForm.functionName" placeholder="如：main" class="common-input" />
           </el-form-item>
         </el-form>
       </div>
@@ -488,64 +548,28 @@ def main():
         <h4>函数配置</h4>
         <el-form :model="fnForm" label-width="120px">
           <el-form-item label="函数名称" required>
-            <el-input
-              v-model="fnForm.name"
-              placeholder="请输入函数名称，如：my-function"
-              class="common-input"
-            />
+            <el-input v-model="fnForm.name" placeholder="请输入函数名称，如：my-function" class="common-input" />
           </el-form-item>
           <el-form-item label="环境名称" required>
-            <el-input
-              v-model="fnForm.environment"
-              :disabled="true"
-              class="common-input"
-            />
+            <el-input v-model="fnForm.environment" :disabled="true" class="common-input" />
           </el-form-item>
           <el-form-item label="包名称" required>
-            <el-input
-              v-model="fnForm.package"
-              :disabled="true"
-              class="common-input"
-            />
+            <el-input v-model="fnForm.package" :disabled="true" class="common-input" />
           </el-form-item>
           <el-form-item label="函数入口" required>
-            <el-input
-              v-model="fnForm.functionName"
-              placeholder="如：main"
-              class="common-input"
-            />
+            <el-input v-model="fnForm.functionName" placeholder="如：main" class="common-input" />
           </el-form-item>
           <el-form-item label="并发数">
-            <el-input-number
-              v-model="fnForm.concurrency"
-              :min="1"
-              :max="1000"
-              placeholder="500"
-            />
+            <el-input-number v-model="fnForm.concurrency" :min="1" :max="1000" placeholder="500" />
           </el-form-item>
           <el-form-item label="超时时间(秒)">
-            <el-input-number
-              v-model="fnForm.functionTimeout"
-              :min="1"
-              :max="300"
-              placeholder="60"
-            />
+            <el-input-number v-model="fnForm.functionTimeout" :min="1" :max="300" placeholder="60" />
           </el-form-item>
           <el-form-item label="空闲超时(秒)">
-            <el-input-number
-              v-model="fnForm.idletimeout"
-              :min="1"
-              :max="600"
-              placeholder="120"
-            />
+            <el-input-number v-model="fnForm.idletimeout" :min="1" :max="600" placeholder="120" />
           </el-form-item>
           <el-form-item label="每Pod请求数">
-            <el-input-number
-              v-model="fnForm.requestsPerPod"
-              :min="1"
-              :max="100"
-              placeholder="1"
-            />
+            <el-input-number v-model="fnForm.requestsPerPod" :min="1" :max="100" placeholder="1" />
           </el-form-item>
         </el-form>
       </div>
@@ -554,20 +578,10 @@ def main():
         <span class="dialog-footer">
           <el-button @click="createDialogVisible = false">取消</el-button>
           <el-button v-if="createStep > 0" @click="prevStep">上一步</el-button>
-          <el-button
-            v-if="createStep < 2"
-            type="primary"
-            @click="nextStep"
-            :loading="stepLoading"
-          >
+          <el-button v-if="createStep < 2" type="primary" @click="nextStep" :loading="stepLoading">
             下一步
           </el-button>
-          <el-button
-            v-if="createStep === 2"
-            type="primary"
-            @click="createFunction"
-            :loading="stepLoading"
-          >
+          <el-button v-if="createStep === 2" type="primary" @click="createFunction" :loading="stepLoading">
             创建函数
           </el-button>
         </span>
@@ -575,12 +589,7 @@ def main():
     </el-dialog>
 
     <!-- 函数详情对话框 -->
-    <el-dialog
-      v-model="detailsDialogVisible"
-      title="函数详情"
-      width="700px"
-      class="common-dialog"
-    >
+    <el-dialog v-model="detailsDialogVisible" title="函数详情" width="700px" class="common-dialog">
       <div v-if="selectedFunction">
         <h4 style="margin-top: 0; margin-bottom: 15px">基本信息:</h4>
         <p><strong>名称:</strong> {{ selectedFunction.metadata.name }}</p>
@@ -1227,7 +1236,7 @@ const finishConcurrencyTest = () => {
   const peakTPS = Math.max(...concurrencyRealTimeData.value);
   const avgTPS = Math.floor(
     concurrencyRealTimeData.value.reduce((a, b) => a + b, 0) /
-      concurrencyRealTimeData.value.length
+    concurrencyRealTimeData.value.length
   );
 
   // 设置测试结果
@@ -1861,11 +1870,9 @@ onUnmounted(() => {
       left: 0;
       right: 0;
       height: 4px;
-      background: linear-gradient(
-        90deg,
-        var(--emdc-color-primary) 0%,
-        var(--emdc-hover-color-primary) 100%
-      );
+      background: linear-gradient(90deg,
+          var(--emdc-color-primary) 0%,
+          var(--emdc-hover-color-primary) 100%);
     }
 
     &:hover {
@@ -1877,11 +1884,9 @@ onUnmounted(() => {
     .metric-icon {
       width: 60px;
       height: 60px;
-      background: linear-gradient(
-        135deg,
-        var(--emdc-color-primary) 0%,
-        var(--emdc-hover-color-primary) 100%
-      );
+      background: linear-gradient(135deg,
+          var(--emdc-color-primary) 0%,
+          var(--emdc-hover-color-primary) 100%);
       border-radius: 12px;
       display: flex;
       align-items: center;
@@ -2110,6 +2115,212 @@ onUnmounted(() => {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
+  }
+
+  // 项目成果样式
+  .achievements-panel {
+    padding: 20px;
+  }
+
+  .achievements-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+  }
+
+  .papers-patents-section {
+    .achievement-section {
+      margin-bottom: 20px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .achievement-title {
+    font-size: 16px;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--emdc-color-primary);
+    display: inline-block;
+  }
+
+  .compact-achievement-list {
+    .compact-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      border-left: 3px solid transparent;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #e9ecef;
+        border-left-color: var(--emdc-color-primary);
+        transform: translateX(3px);
+      }
+    }
+
+    .item-number {
+      font-weight: 700;
+      color: var(--emdc-color-primary);
+      font-size: 14px;
+      min-width: 18px;
+      flex-shrink: 0;
+    }
+
+    .item-content {
+      flex: 1;
+      min-width: 0;
+
+      .item-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .item-title {
+        color: #2c3e50;
+        font-weight: 500;
+        font-size: 13px;
+        line-height: 1.4;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .item-authors {
+        color: #606266;
+        font-size: 12px;
+        line-height: 1.4;
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+
+      .item-venue {
+        color: #0C8357;
+        font-size: 12px;
+        line-height: 1.4;
+        font-weight: 500;
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+
+      .award-badge {
+        display: inline-block;
+        margin-top: 4px;
+        padding: 2px 8px;
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #8b4513;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .talent-section {
+    .achievement-section {
+      padding-top: 0;
+    }
+  }
+
+  .talent-cards {
+    margin-bottom: 15px;
+
+    .talent-card {
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+
+      .talent-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #e4e7ed;
+
+        .talent-degree {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--emdc-color-primary);
+        }
+
+        .talent-count {
+          font-size: 12px;
+          color: #909399;
+          background: white;
+          padding: 2px 8px;
+          border-radius: 10px;
+        }
+      }
+
+      .talent-names {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+
+        .name-tag {
+          padding: 4px 10px;
+          background: white;
+          border: 1px solid #dcdfe6;
+          border-radius: 3px;
+          font-size: 12px;
+          color: #606266;
+          transition: all 0.2s;
+
+          &:hover {
+            border-color: var(--emdc-color-primary);
+            color: var(--emdc-color-primary);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(12, 131, 87, 0.15);
+          }
+        }
+      }
+    }
+  }
+
+  .achievement-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 12px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 6px;
+    border: 1px solid #e4e7ed;
+
+    .stat-item {
+      text-align: center;
+      padding: 8px;
+      background: white;
+      border-radius: 4px;
+
+      .stat-number {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--emdc-color-primary);
+        margin-bottom: 2px;
+        line-height: 1;
+      }
+
+      .stat-label {
+        font-size: 11px;
+        color: #909399;
+      }
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .achievements-grid {
+      grid-template-columns: 1fr;
+    }
   }
 }
 </style>
