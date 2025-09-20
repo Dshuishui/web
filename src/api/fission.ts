@@ -3,7 +3,7 @@ import request from '../utils/request';
 // 获取指定命名空间下的所有函数
 export const getFunctionsByNamespace = (namespace: string) => {
   return request({
-    url: `/api/fission/v1/namespaces/${namespace}/functions`,
+    url: `http://127.0.0.1:30081/api/fission/v1/namespaces/${namespace}/functions`,
     method: 'get',
   });
 };
