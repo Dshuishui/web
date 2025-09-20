@@ -1,61 +1,140 @@
-import request from '../utils/request';
+// 获取认证头
+const getAuthHeaders = () => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  
+  const accessToken = localStorage.getItem('accessToken');
+  if (accessToken) {
+    headers['Authorization'] = accessToken;
+  }
+  
+  const xPortalId = localStorage.getItem('X-PortalID');
+  if (xPortalId) {
+    headers['X-PortalID'] = xPortalId;
+  }
+  
+  return headers;
+};
 
 // 获取指定命名空间下的所有函数
-export const getFunctionsByNamespace = (namespace: string) => {
-  return request({
-    url: `/api/fission/v1/namespaces/${namespace}/functions`,
-    method: 'get',
+export const getFunctionsByNamespace = async (namespace: string) => {
+  const response = await fetch(`/api/fission/v1/namespaces/${namespace}/functions`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
   });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  return response.json();
 };
 
 // 获取所有命名空间（这里需要根据实际API调整）
-export const getAllNamespaces = () => {
-  return request({
-    url: '/api/fission/v1/namespaces',
-    method: 'get',
+export const getAllNamespaces = async () => {
+  const response = await fetch('/api/fission/v1/namespaces', {
+    method: 'GET',
+    headers: getAuthHeaders(),
   });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  return response.json();
 };
 
 // 创建环境
-export const createEnvironment = (namespace: string, data: any) => {
-  return request({
-    url: `/api/fission/v1/namespaces/${namespace}/environments`,
-    method: 'post',
-    data,
+export const createEnvironment = async (namespace: string, data: any) => {
+  const response = await fetch(`/api/fission/v1/namespaces/${namespace}/environments`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
   });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  return response.json();
 };
 
 // 创建包
-export const createPackage = (namespace: string, data: any) => {
-  return request({
-    url: `/api/fission/v1/namespaces/${namespace}/packages`,
-    method: 'post',
-    data,
+export const createPackage = async (namespace: string, data: any) => {
+  const response = await fetch(`/api/fission/v1/namespaces/${namespace}/packages`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
   });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  return response.json();
 };
 
 // 创建函数
-export const createFunction = (namespace: string, data: any) => {
-  return request({
-    url: `/api/fission/v1/namespaces/${namespace}/functions`,
-    method: 'post',
-    data,
+export const createFunction = async (namespace: string, data: any) => {
+  const response = await fetch(`/api/fission/v1/namespaces/${namespace}/functions`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
   });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  return response.json();
 };
 
 // 性能测试相关接口
-export const startPerformanceTest = () => {
-  return request({
-    url: 'http://127.0.0.1:30085/topic3-pro-kp-receiver',
-    method: 'get',
-    timeout: 60000, // 设置60秒超时，因为测试可能需要较长时间
-  });
+export const startPerformanceTest = async () => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
+  
+  try {
+    const response = await fetch('http://127.0.0.1:30085/topic3-pro-kp-receiver', {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
 };
 
-export const sendPerformanceTest = () => {
-  return request({
-    url: 'http://127.0.0.1:30085/topic3-pro-kp-sender',
-    method: 'get',
-    timeout: 60000, // 设置60秒超时，因为sender会阻塞等待结果
-  });
+export const sendPerformanceTest = async () => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
+  
+  try {
+    const response = await fetch('http://127.0.0.1:30085/topic3-pro-kp-sender', {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
 };
