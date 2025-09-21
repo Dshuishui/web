@@ -262,12 +262,6 @@
                       {{ throughputTesting ? "测试中..." : "开始吞吐测试" }}
                     </el-button>
 
-                    <p class="test-description">
-                      <strong>真实测试</strong>：启动测试 → 发送数据 →
-                      等待结果（约15秒）<br />
-                      <strong>模拟测试</strong>：快速演示效果，使用预设数据
-                    </p>
-
                     <div v-if="throughputResults" class="test-result-summary">
                       <span class="result-item">峰值吞吐:
                         <strong>{{ throughputResults.peakThroughput }} Gb/s</strong></span>
