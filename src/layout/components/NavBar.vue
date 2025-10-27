@@ -6,7 +6,7 @@ import UserInfo from '@/layout/components/Header/UserInfo.vue';
 <template>
     <div class="header-container">
         <div class="header-wrapper">
-            <span class="header--span__title">面向边缘微小型数据中心的系统软件平台</span>
+            <span class="header--span__title">服务器无感框架和协同调度平台</span>
         </div>
         <div class="header-menu">
             <UserInfo />

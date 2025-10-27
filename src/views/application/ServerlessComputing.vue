@@ -3,8 +3,8 @@
     <!-- 统一的页面介绍区域 -->
     <div class="page-intro">
       <div class="intro-header">
-        <h1>无服务器计算平台</h1>
-        <p class="subtitle">面向边缘微小型数据中心的高性能函数计算服务</p>
+        <h1>服务器无感框架和协同调度平台</h1>
+        <!-- <p class="subtitle">面向边缘微小型数据中心的高性能函数计算服务</p> -->
       </div>
 
       <div class="intro-divider"></div>

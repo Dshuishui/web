@@ -1,28 +1,11 @@
 <template>
   <el-breadcrumb separator="/">
-    <el-breadcrumb-item
-      v-for="item in routes"
-      :key="item.path"
-      @click="go(item.path)"
-    >{{ item.meta.title }}</el-breadcrumb-item>
+    <el-breadcrumb-item>首页</el-breadcrumb-item>
   </el-breadcrumb>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
-import { useRouter } from 'vue-router';
-
-const router = useRouter()
-const routes = computed(() => {
-  return router.currentRoute.value.matched.filter((item) => {
-    return item.meta.title
-  })
-})
-
-const go = (path: string) => {
-  router.push(path)
-}
-
+// 简化版面包屑，只显示当前页面标题
 </script>
 
 <style lang="less" scoped>
