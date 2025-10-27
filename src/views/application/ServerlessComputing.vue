@@ -62,19 +62,19 @@
             </div>
           </div>
 
-          <!-- 函数表格 -->
-          <el-table :data="functions" class="common-table" stripe v-loading="functionsLoading"
+          <!-- 函数表格 - 自适应宽度版本 -->
+          <el-table :data="functions" class="common-table function-table" stripe v-loading="functionsLoading"
             v-if="functions.length > 0">
-            <el-table-column prop="metadata.name" label="函数名称" width="180" />
-            <el-table-column prop="spec.environment.name" label="环境" width="120" />
-            <el-table-column prop="metadata.namespace" label="命名空间" width="120" />
-            <el-table-column prop="spec.concurrency" label="并发数" width="100" />
-            <el-table-column prop="spec.functionTimeout" label="超时时间" width="100">
+            <el-table-column prop="metadata.name" label="函数名称" min-width="160" />
+            <el-table-column prop="spec.environment.name" label="环境" min-width="100" />
+            <el-table-column prop="metadata.namespace" label="命名空间" min-width="120" />
+            <el-table-column prop="spec.concurrency" label="并发数" min-width="80" />
+            <el-table-column prop="spec.functionTimeout" label="超时时间" min-width="90">
               <template #default="scope">
                 {{ scope.row.spec.functionTimeout }}s
               </template>
             </el-table-column>
-            <el-table-column label="伸缩策略" width="120">
+            <el-table-column label="伸缩策略" min-width="120">
               <template #default="scope">
                 <el-tag size="small" type="info">
                   {{
@@ -85,14 +85,14 @@
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="状态" width="100">
+            <el-table-column label="状态" min-width="80">
               <template #default="scope">
                 <el-tag :type="getFunctionStatusType(scope.row)" size="small">
                   {{ getFunctionStatusText(scope.row) }}
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="200">
+            <el-table-column label="操作" min-width="150" fixed="right">
               <template #default="scope">
                 <div class="function-actions">
                   <el-button class="-emdc-button-plain" size="small" @click="showDetails(scope.row)">
@@ -154,7 +154,7 @@
                   </el-icon>
                   <span>{{
                     getStatusText(performanceStatus.concurrency)
-                    }}</span>
+                  }}</span>
                 </div>
               </div>
             </div>
@@ -270,7 +270,7 @@
                       <span class="result-item">测试包数:
                         <strong>{{
                           throughputResults.finalData.length
-                          }}</strong></span>
+                        }}</strong></span>
                     </div>
                   </div>
                 </div>
