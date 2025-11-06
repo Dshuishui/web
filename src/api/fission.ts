@@ -102,7 +102,7 @@ export const startPerformanceTest = async () => {
   const timeoutId = setTimeout(() => controller.abort(), 60000);
   
   try {
-    const response = await fetch('http://127.0.0.1:30085/topic3-pro-kp-receiver', {
+    const response = await fetch('http://127.0.0.1:30350/topic3-pro-kp-receiver', {
       method: 'GET',
       headers: getAuthHeaders(),
       signal: controller.signal,
@@ -126,7 +126,7 @@ export const sendPerformanceTest = async () => {
   const timeoutId = setTimeout(() => controller.abort(), 60000);
   
   try {
-    const response = await fetch('http://127.0.0.1:30085/topic3-pro-kp-sender', {
+    const response = await fetch('http://127.0.0.1:30350/topic3-pro-kp-sender', {
       method: 'GET',
       headers: getAuthHeaders(),
       signal: controller.signal,

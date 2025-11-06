@@ -38,12 +38,12 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/throughput/, ''),
       },
       '/api/fission': {
-        target: 'http://127.0.0.1:30081',
+        target: 'http://127.0.0.1:30360',
         changeOrigin: true,
         secure: false,
         configure: (proxy, _options) => {
           proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('代理请求:', req.url, '->', 'http://127.0.0.1:30081' + req.url);
+            console.log('代理请求:', req.url, '->', 'http://127.0.0.1:30360' + req.url);
           });
         },
       },
