@@ -1081,7 +1081,7 @@ const startConcurrencyTest = async () => {
 
   try {
     // 发送POST请求启动性能测试
-    const response = await fetch("http://10.15.16.141:30350/kvstore", {
+    const response = await fetch("http://127.0.0.1:30350/kvstore", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
