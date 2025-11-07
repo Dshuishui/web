@@ -47,6 +47,16 @@ export default defineConfig({
           });
         },
       },
+      '/api/kv': {
+        target: 'http://10.15.16.141:30360',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('代理请求:', req.url, '->', 'http://10.15.16.141:30360' + req.url);
+          });
+        },
+      },
     },
   },
   css: {
