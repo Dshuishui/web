@@ -1081,7 +1081,7 @@ const startConcurrencyTest = async () => {
 
   try {
     // 发送POST请求启动性能测试
-    const response = await fetch("/api/throughput/kvstore", {
+    const response = await fetch("/api/fission/kvstore", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
