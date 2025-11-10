@@ -2,15 +2,29 @@
   <el-menu :unique-opened="true"
     :collapse-transition="false" :default-active="activeMenu()"
     :style="'height:' + mainHeight + 'px'" mode="vertical" router class="common-menu">
-    <el-menu-item index="/serverless/index">
-      <i class="iconfont icon-menu icon-a-01-2zhisuanchihuaziyuanchi"></i>
-      <span>首页</span>
-    </el-menu-item>
+    
+    <el-sub-menu index="/serverless/index">
+      <template #title>
+        <i class="iconfont icon-menu icon-a-01-2zhisuanchihuaziyuanchi"></i>
+        <span>无服务器计算</span>
+      </template>
+
+      <el-menu-item index="/serverless/index/functions">
+        函数管理
+      </el-menu-item>
+      <el-menu-item index="/serverless/index/performance">
+        性能评估
+      </el-menu-item>
+      <el-menu-item index="/serverless/index/achievements">
+        项目成果
+      </el-menu-item>
+    </el-sub-menu>
+
   </el-menu>
 </template>
 
 <script lang="ts" setup>
-import { ElMenu } from 'element-plus';
+import { ElMenu, ElSubMenu, ElMenuItem } from 'element-plus'; // 确保导入了 ElSubMenu 和 ElMenuItem
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router';
 
@@ -34,10 +48,12 @@ window.onresize = () => {
 }
 
 const activeMenu = (): string => {
-  console.log('route.meta.name:', route.meta.name)
-  return (route.meta.name as string) || '/serverless/index'
+  // 修改这里：使用 route.path 来确保子路由被正确高亮
+  // console.log('route.path:', route.path)
+  return route.path
 }
 </script>
 
 <style lang="less" scoped>
+/* 样式不需要更改 */
 </style>
