@@ -1,12 +1,49 @@
 <template>
   <el-breadcrumb separator="/">
-    <el-breadcrumb-item>首页</el-breadcrumb-item>
+    <el-breadcrumb-item 
+      v-for="(item, index) in levelList" 
+      :key="item.path"
+    >
+      <!-- 最后一个元素不跳转，只显示文本 -->
+      <span v-if="index === levelList.length - 1">{{ item.meta.title }}</span>
+      <!-- 非最后一个元素可以点击跳转 -->
+      <router-link v-else :to="item.path">{{ item.meta.title }}</router-link>
+    </el-breadcrumb-item>
   </el-breadcrumb>
 </template>
 
+
 <script lang="ts" setup>
-// 简化版面包屑，只显示当前页面标题
+import { ref, watch } from 'vue';
+import { useRoute, RouteLocationMatched } from 'vue-router';
+
+const route = useRoute();
+const levelList = ref<RouteLocationMatched[]>([]);
+
+const getBreadcrumb = () => {
+  // 过滤掉没有 title 的路由，或者隐藏的路由
+  let matched = route.matched.filter(item => item.meta && item.meta.title && item.meta.hidden !== true);
+  
+  // 检查第一个路由是否是首页，如果不是，可以手动添加一个
+  // 假设您的首页路径是 '/' 且 title 是 '首页'
+  const first = matched[0];
+  if (first && first.path !== '/') {
+    matched = [{ path: '/', meta: { title: '服务器无感协同调度平台' } } as unknown as RouteLocationMatched].concat(matched);
+  }
+  
+  levelList.value = matched;
+};
+
+// 初始加载时执行一次
+getBreadcrumb();
+
+// 监听路由变化，每次变化时重新生成面包屑
+watch(
+  () => route.path,
+  () => getBreadcrumb()
+);
 </script>
+
 
 <style lang="less" scoped>
 .el-breadcrumb__item{

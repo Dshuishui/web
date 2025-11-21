@@ -1,12 +1,13 @@
 <template>
-  <el-menu :unique-opened="true"
+<el-menu :unique-opened="true"
     :collapse-transition="false" :default-active="activeMenu()"
-    :style="'height:' + mainHeight + 'px'" mode="vertical" router class="common-menu">
+    style="height: 800px" 
+    mode="vertical" router class="common-menu">
     
     <el-sub-menu index="/serverless/index">
       <template #title>
         <i class="iconfont icon-menu icon-a-01-2zhisuanchihuaziyuanchi"></i>
-        <span>无服务器计算</span>
+        <span>服务器无感协同调度平台</span>
       </template>
 
       <el-menu-item index="/serverless/index/functions">
@@ -24,7 +25,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMenu, ElSubMenu, ElMenuItem } from 'element-plus'; // 确保导入了 ElSubMenu 和 ElMenuItem
+// 【关键修改】删除了 'element-plus' 的导入语句
+// import { ElMenu, ElSubMenu, ElMenuItem } from 'element-plus'; // <-- 已删除
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router';
 

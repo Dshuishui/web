@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
     component: Layout,
     // 将重定向指向新的默认子页面
     redirect: '/serverless/index/functions', 
-    meta: {title: '无服务器计算', name: '/serverless'},
+    // meta: {title: '无服务器计算', name: '/serverless'},
     children: [
       {
         // 这是父路由，路径是 /serverless/index
@@ -24,7 +24,7 @@ const routes: RouteRecordRaw[] = [
         component: () =>
           import('@/views/application/ServerlessComputing.vue'),
         // 这个 meta 标题会用于侧边栏的父菜单
-        meta: {title: '无服务器计算', name: '/serverless/index'},
+        // meta: {title: '无服务器计算', name: '/serverless/index'},
         // 为 ServerlessComputing.vue 中的 <router-view> 添加子路由
         redirect: '/serverless/index/functions', // 默认显示函数管理
         children: [
