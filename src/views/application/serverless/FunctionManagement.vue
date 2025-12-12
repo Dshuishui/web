@@ -154,6 +154,22 @@ def main():
           <el-form-item label="每Pod请求数">
             <el-input-number v-model="fnForm.requestsPerPod" :min="1" :max="100" placeholder="1" />
           </el-form-item>
+          <el-form-item label="一致性程度">
+            <el-radio-group v-model="fnForm.consistencyLevel">
+              <el-radio value="strong">
+                <span class="consistency-option">
+                  <strong>强一致性</strong>
+                  <span class="consistency-desc">保证数据强一致，适用于对数据准确性要求高的场景</span>
+                </span>
+              </el-radio>
+              <el-radio value="elastic">
+                <span class="consistency-option">
+                  <strong>弹性一致性</strong>
+                  <span class="consistency-desc">允许短暂不一致，适用于高并发、高吞吐场景</span>
+                </span>
+              </el-radio>
+            </el-radio-group>
+          </el-form-item>
         </el-form>
       </div>
 
@@ -266,6 +282,7 @@ const fnForm = reactive({
   functionTimeout: 60,
   idletimeout: 120,
   requestsPerPod: 1,
+  consistencyLevel: "elastic", // 新增：一致性程度，默认弹性一致性
 });
 
 // 旧的表单数据（保留兼容性）
@@ -405,10 +422,10 @@ const deleteFunction = async (func: FunctionItem) => {
         customClass: "common-messagebox",
       }
     );
-    
+
     // 调用后端 API 删除函数
     await deleteFunctionAPI(selectedNamespace.value, func.metadata.name);
-    
+
     // 删除成功后，从本地数组中移除
     const index = functions.value.findIndex(
       (f) => f.metadata.name === func.metadata.name
@@ -416,7 +433,7 @@ const deleteFunction = async (func: FunctionItem) => {
     if (index > -1) {
       functions.value.splice(index, 1);
     }
-    
+
     ElMessage.success(`函数 "${func.metadata.name}" 已删除`);
   } catch (error: any) {
     // 用户点击取消时，error 没有 message 属性
@@ -496,11 +513,45 @@ const resetCreateForms = () => {
     functionTimeout: 60,
     idletimeout: 120,
     requestsPerPod: 1,
+    consistencyLevel: "elastic",
   });
 };
 </script>
 
 <style lang="less" scoped>
+// 一致性选项样式
+.consistency-option {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.4;
+
+  strong {
+    font-size: 14px;
+    color: #303133;
+  }
+
+  .consistency-desc {
+    font-size: 12px;
+    color: #909399;
+    margin-top: 2px;
+  }
+}
+
+:deep(.el-radio-group) {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+:deep(.el-radio) {
+  height: auto;
+  align-items: flex-start;
+
+  .el-radio__label {
+    white-space: normal;
+  }
+}
+
 /* 函数管理页面的样式 */
 .content-panel {
   background: #ffffff;
