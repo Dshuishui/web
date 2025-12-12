@@ -540,15 +540,20 @@ const resetCreateForms = () => {
 :deep(.el-radio-group) {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 :deep(.el-radio) {
   height: auto;
   align-items: flex-start;
 
+  .el-radio__input {
+    margin-top: 2px;
+  }
+
   .el-radio__label {
     white-space: normal;
+    padding-left: 8px;
   }
 }
 
