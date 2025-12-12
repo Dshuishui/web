@@ -10,7 +10,9 @@
     <div class="metrics-showcase">
       <div class="metric-card primary-metric">
         <div class="metric-icon">
-          <el-icon><Timer /></el-icon>
+          <el-icon>
+            <Timer />
+          </el-icon>
         </div>
         <div class="metric-content">
           <h3>并发处理能力</h3>
@@ -20,9 +22,15 @@
           </div>
           <p class="metric-desc">函数级强隔离弹性一致性调度</p>
           <div class="metric-status" :class="performanceStatus.concurrency">
-            <el-icon v-if="performanceStatus.concurrency === 'achieved'"><Check /></el-icon>
-            <el-icon v-else-if="performanceStatus.concurrency === 'testing'"><Loading /></el-icon>
-            <el-icon v-else><Clock /></el-icon>
+            <el-icon v-if="performanceStatus.concurrency === 'achieved'">
+              <Check />
+            </el-icon>
+            <el-icon v-else-if="performanceStatus.concurrency === 'testing'">
+              <Loading />
+            </el-icon>
+            <el-icon v-else>
+              <Clock />
+            </el-icon>
             <span>{{ getStatusText(performanceStatus.concurrency) }}</span>
           </div>
         </div>
@@ -30,7 +38,9 @@
 
       <div class="metric-card primary-metric">
         <div class="metric-icon">
-          <el-icon><Connection /></el-icon>
+          <el-icon>
+            <Connection />
+          </el-icon>
         </div>
         <div class="metric-content">
           <h3>数据吞吐率</h3>
@@ -40,9 +50,15 @@
           </div>
           <p class="metric-desc">函数间直接通信端到端性能</p>
           <div class="metric-status" :class="performanceStatus.throughput">
-            <el-icon v-if="performanceStatus.throughput === 'achieved'"><Check /></el-icon>
-            <el-icon v-else-if="performanceStatus.throughput === 'testing'"><Loading /></el-icon>
-            <el-icon v-else><Clock /></el-icon>
+            <el-icon v-if="performanceStatus.throughput === 'achieved'">
+              <Check />
+            </el-icon>
+            <el-icon v-else-if="performanceStatus.throughput === 'testing'">
+              <Loading />
+            </el-icon>
+            <el-icon v-else>
+              <Clock />
+            </el-icon>
             <span>{{ getStatusText(performanceStatus.throughput) }}</span>
           </div>
         </div>
@@ -70,7 +86,9 @@
             </div>
             <div class="test-actions">
               <el-button class="-emdc-button-primary" :loading="concurrencyTesting" @click="startConcurrencyTest">
-                <el-icon><CaretRight /></el-icon>
+                <el-icon>
+                  <CaretRight />
+                </el-icon>
                 {{ concurrencyTesting ? "测试中..." : "开始并发测试" }}
               </el-button>
               <div v-if="concurrencyResults" class="test-result-summary">
@@ -102,14 +120,24 @@
               </p>
             </div>
             <div class="test-actions">
-              <el-button class="-emdc-button-primary" :loading="throughputTesting" @click="startThroughputTest">
-                <el-icon><CaretRight /></el-icon>
-                {{ throughputTesting ? "测试中..." : "开始吞吐测试" }}
-              </el-button>
+              <div class="test-action-row">
+                <span class="action-label">包大小:</span>
+                <el-select v-model="selectedPackageSize" class="package-size-select" :disabled="throughputTesting">
+                  <el-option v-for="item in packageSizeOptions" :key="item.value" :label="item.label"
+                    :value="item.value" />
+                </el-select>
+                <el-button class="-emdc-button-primary" :loading="throughputTesting" @click="startThroughputTest">
+                  <el-icon>
+                    <CaretRight />
+                  </el-icon>
+                  {{ throughputTesting ? "测试中..." : "开始吞吐测试" }}
+                </el-button>
+              </div>
+              <!-- 结果展示部分保持不变 -->
               <div v-if="throughputResults" class="test-result-summary">
                 <span class="result-item">峰值吞吐: <strong>{{ throughputResults.peakThroughput }} Gb/s</strong></span>
                 <span class="result-item">平均吞吐: <strong>{{ throughputResults.avgThroughput }} Gb/s</strong></span>
-                <span class="result-item">测试包数: <strong>{{ throughputResults.finalData.length }}</strong></span>
+                <span class="result-item">测试包大小: <strong>{{ selectedPackageSize }} KB</strong></span>
               </div>
             </div>
           </div>
@@ -171,6 +199,16 @@ const throughputProgress = ref(0);
 const throughputResults = ref<ThroughputResults | null>(null);
 const throughputCurrentPackage = ref<string | number>("");
 const throughputRealTimeData = ref<number[]>([]);
+
+// 包大小选择相关
+const selectedPackageSize = ref<number>(4); // 默认选择 4KB
+const packageSizeOptions = [
+  { label: '4 KB', value: 4 },
+  { label: '8 KB', value: 8 },
+  { label: '16 KB', value: 16 },
+  { label: '32 KB', value: 32 },
+  { label: '64 KB', value: 64 },
+];
 
 // 图表引用
 const concurrencyChart = ref(null);
@@ -323,7 +361,7 @@ const startThroughputTest = async () => {
   throughputTesting.value = true;
   throughputProgress.value = 0;
   throughputRealTimeData.value = [];
-  throughputCurrentPackage.value = "";
+  throughputCurrentPackage.value = selectedPackageSize.value;
   performanceStatus.value.throughput = "testing";
 
   await nextTick();
@@ -333,8 +371,9 @@ const startThroughputTest = async () => {
     ElMessage.info("开始数据吞吐率测试...");
     throughputProgress.value = 10;
 
-    const senderPromise = fetch("/api/throughput/topic3-pro-kp-sender");
-    const receiverPromise = fetch("/api/throughput/topic3-pro-kp-receiver");
+    const size = selectedPackageSize.value;
+    const senderPromise = fetch(`/api/throughput/sender?size=${size}`);
+    const receiverPromise = fetch(`/api/throughput/receiver?size=${size}`);
 
     const [senderResponse, receiverResponse] = await Promise.all([
       senderPromise,
@@ -350,45 +389,35 @@ const startThroughputTest = async () => {
     ]);
     throughputProgress.value = 70;
 
-    let data = (Array.isArray(senderData) && senderData.length > 0) ? senderData : receiverData;
-    if (!Array.isArray(data) || data.length === 0) {
-      throw new Error("两个端点都没有返回有效数据");
+    // 优先使用 receiver 的数据，如果没有则使用 sender 的数据
+    let throughputValue = 0;
+    
+    if (Array.isArray(receiverData) && receiverData.length > 0 && receiverData[0].throughput_gbps) {
+      throughputValue = parseFloat(receiverData[0].throughput_gbps.toFixed(2));
+    } else if (Array.isArray(senderData) && senderData.length > 0 && senderData[0].throughput_gbps) {
+      throughputValue = parseFloat(senderData[0].throughput_gbps.toFixed(2));
     }
 
-    const processedData = data
-      .filter(item =>
-        item &&
-        typeof item.pkt_kb === "number" &&
-        typeof item.throughput_gbps === "number" &&
-        !isNaN(item.pkt_kb) &&
-        !isNaN(item.throughput_gbps)
-      )
-      .map(item => ({
-        ...item,
-        throughput_gbps: parseFloat(item.throughput_gbps.toFixed(2)),
-      }))
-      .sort((a, b) => a.pkt_kb - b.pkt_kb);
+    if (throughputValue === 0) {
+      throw new Error("没有有效的测试数据");
+    }
 
-    if (processedData.length === 0) throw new Error("没有有效的测试数据");
-
-    throughputRealTimeData.value = processedData.map(item => item.throughput_gbps);
-    const throughputValues = processedData.map(item => item.throughput_gbps);
-    const peakThroughput = Math.max(...throughputValues);
-    const avgThroughput = (throughputValues.reduce((a, b) => a + b, 0) / throughputValues.length).toFixed(1);
+    throughputProgress.value = 90;
+    throughputRealTimeData.value = [throughputValue];
 
     throughputResults.value = {
-      peakThroughput: peakThroughput.toFixed(1),
-      avgThroughput: avgThroughput,
-      finalData: [...throughputValues],
-      detailedData: processedData,
+      peakThroughput: throughputValue.toFixed(1),
+      avgThroughput: throughputValue.toFixed(1),
+      finalData: [throughputValue],
     };
 
-    updateThroughputChart(processedData);
+    updateThroughputChart(throughputValue);
     throughputProgress.value = 100;
-    performanceStatus.value.throughput = peakThroughput >= 30 ? "achieved" : "failed";
+    performanceStatus.value.throughput = throughputValue >= 30 ? "achieved" : "failed";
     throughputTesting.value = false;
-    const statusText = peakThroughput >= 30 ? "达标" : "未达标";
-    ElMessage.success(`数据吞吐率测试完成！峰值: ${peakThroughput.toFixed(1)} Gb/s (${statusText})`);
+    
+    const statusText = throughputValue >= 30 ? "达标" : "未达标";
+    ElMessage.success(`数据吞吐率测试完成！吞吐率: ${throughputValue.toFixed(1)} Gb/s (${statusText})`);
   } catch (error) {
     console.error("数据吞吐率测试失败:", error);
     throughputTesting.value = false;
@@ -432,8 +461,8 @@ const initConcurrencyChart = async () => {
           maintainAspectRatio: false,
           animation: false,
           scales: {
-            y: { beginAtZero: true, max: 120000, title: { display: true, text: "TPS (每秒事务数)" }},
-            x: { title: { display: true, text: "测试时间" }},
+            y: { beginAtZero: true, max: 120000, title: { display: true, text: "TPS (每秒事务数)" } },
+            x: { title: { display: true, text: "测试时间" } },
           },
         },
       });
@@ -461,7 +490,8 @@ const initThroughputChart = async () => {
       throughputChartInstance = new Chart(throughputChart.value, {
         type: "line",
         data: {
-          labels: ["4", "8", "16", "32"],
+          // labels: ["4", "8", "16", "32"],
+          labels: [selectedPackageSize.value.toString()],
           datasets: [
             {
               label: "吞吐率 (Gb/s)",
@@ -473,7 +503,8 @@ const initThroughputChart = async () => {
             },
             {
               label: "目标线 (30 Gb/s)",
-              data: new Array(4).fill(30),
+              // data: new Array(4).fill(30),
+              data: new Array(1).fill(30),
               borderColor: "#e02020",
               borderDash: [5, 5],
               pointRadius: 0,
@@ -487,7 +518,7 @@ const initThroughputChart = async () => {
           animation: false,
           scales: {
             y: { beginAtZero: true, title: { display: true, text: "吞吐率 (Gb/s)" }, suggestedMax: 200 },
-            x: { title: { display: true, text: "包大小 (KB)" }},
+            x: { title: { display: true, text: "包大小 (KB)" } },
           },
         },
       });
@@ -497,29 +528,46 @@ const initThroughputChart = async () => {
   }
 };
 
-const updateThroughputChart = (processedData?: ProcessedTestItem[]) => {
+// const updateThroughputChart = (processedData?: ProcessedTestItem[]) => {
+//   if (!throughputChartInstance) return;
+//   let labels, throughputData;
+
+//   if (processedData && Array.isArray(processedData)) {
+//     labels = processedData.map(item => item.pkt_kb.toString());
+//     throughputData = processedData.map(item => item.throughput_gbps);
+//   } else {
+//     const packageSizes = [4, 8, 16, 32];
+//     labels = packageSizes.slice(0, throughputRealTimeData.value.length).map(size => size.toString());
+//     throughputData = [...throughputRealTimeData.value];
+//   }
+
+//   const maxValue = Math.max(...throughputData);
+//   const dynamicMax = Math.max(40, Math.ceil((maxValue * 1.1) / 10) * 10);
+//   throughputChartInstance.data.labels = labels;
+//   throughputChartInstance.data.datasets[0].data = throughputData;
+//   throughputChartInstance.data.datasets[1].data = new Array(labels.length).fill(30);
+//   throughputChartInstance.options.scales.y.max = dynamicMax;
+//   throughputChartInstance.update("none");
+// };
+
+// 清理函数
+
+const updateThroughputChart = (throughputValue?: number) => {
   if (!throughputChartInstance) return;
-  let labels, throughputData;
 
-  if (processedData && Array.isArray(processedData)) {
-    labels = processedData.map(item => item.pkt_kb.toString());
-    throughputData = processedData.map(item => item.throughput_gbps);
-  } else {
-    const packageSizes = [4, 8, 16, 32];
-    labels = packageSizes.slice(0, throughputRealTimeData.value.length).map(size => size.toString());
-    throughputData = [...throughputRealTimeData.value];
-  }
+  const label = selectedPackageSize.value.toString();
+  const data = throughputValue !== undefined ? [throughputValue] : [];
 
-  const maxValue = Math.max(...throughputData);
+  const maxValue = throughputValue || 30;
   const dynamicMax = Math.max(40, Math.ceil((maxValue * 1.1) / 10) * 10);
-  throughputChartInstance.data.labels = labels;
-  throughputChartInstance.data.datasets[0].data = throughputData;
-  throughputChartInstance.data.datasets[1].data = new Array(labels.length).fill(30);
+
+  throughputChartInstance.data.labels = [label];
+  throughputChartInstance.data.datasets[0].data = data;
+  throughputChartInstance.data.datasets[1].data = [30];
   throughputChartInstance.options.scales.y.max = dynamicMax;
   throughputChartInstance.update("none");
 };
 
-// 清理函数
 const cleanup = () => {
   if (concurrencyInterval.value) clearInterval(concurrencyInterval.value);
   if (concurrencyChartInstance) concurrencyChartInstance.destroy();
@@ -661,10 +709,21 @@ onUnmounted(() => {
       font-size: 14px;
       font-weight: 500;
 
-      &.pending { color: var(--emdc-text-color-secondary); }
-      &.testing { color: var(--emdc-color-warning); }
-      &.achieved { color: var(--emdc-color-success); }
-      &.failed { color: var(--emdc-color-danger); }
+      &.pending {
+        color: var(--emdc-text-color-secondary);
+      }
+
+      &.testing {
+        color: var(--emdc-color-warning);
+      }
+
+      &.achieved {
+        color: var(--emdc-color-success);
+      }
+
+      &.failed {
+        color: var(--emdc-color-danger);
+      }
     }
   }
 }
@@ -688,8 +747,20 @@ onUnmounted(() => {
     margin-bottom: 24px;
     padding-bottom: 16px;
     border-bottom: 2px solid #f0f0f0;
-    h3 { font-size: 18px; font-weight: 600; color: var(--emdc-text-color-primary); margin: 0 0 8px 0; }
-    p { font-size: 14px; color: var(--emdc-text-color-secondary); margin: 0; line-height: 1.5; }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--emdc-text-color-primary);
+      margin: 0 0 8px 0;
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--emdc-text-color-secondary);
+      margin: 0;
+      line-height: 1.5;
+    }
   }
 
   .chart-section {
@@ -705,7 +776,13 @@ onUnmounted(() => {
     .test-control {
       .test-progress {
         margin-bottom: 16px;
-        p { font-size: 14px; color: var(--emdc-text-color-regular); margin: 8px 0 0 0; text-align: center; }
+
+        p {
+          font-size: 14px;
+          color: var(--emdc-text-color-regular);
+          margin: 8px 0 0 0;
+          text-align: center;
+        }
       }
 
       .test-actions {
@@ -723,7 +800,27 @@ onUnmounted(() => {
           .result-item {
             font-size: 14px;
             color: var(--emdc-text-color-regular);
-            strong { color: var(--emdc-color-primary); font-weight: 600; }
+
+            strong {
+              color: var(--emdc-color-primary);
+              font-weight: 600;
+            }
+          }
+        }
+
+        .test-action-row {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .action-label {
+            font-size: 14px;
+            color: var(--emdc-text-color-regular);
+            white-space: nowrap;
+          }
+
+          .package-size-select {
+            width: 120px;
           }
         }
       }
