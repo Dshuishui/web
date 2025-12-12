@@ -490,21 +490,21 @@ const initThroughputChart = async () => {
       throughputChartInstance = new Chart(throughputChart.value, {
         type: "line",
         data: {
-          // labels: ["4", "8", "16", "32"],
-          labels: [selectedPackageSize.value.toString()],
+          labels: ["", selectedPackageSize.value.toString() + " KB", ""],
           datasets: [
             {
               label: "吞吐率 (Gb/s)",
               data: [],
               borderColor: "#4EC58C",
               backgroundColor: "rgba(78, 197, 140, 0.1)",
-              tension: 0.4,
+              tension: 0,
               fill: true,
+              pointRadius: 6,
+              pointBackgroundColor: "#4EC58C",
             },
             {
               label: "目标线 (30 Gb/s)",
-              // data: new Array(4).fill(30),
-              data: new Array(1).fill(30),
+              data: [30, 30, 30],
               borderColor: "#e02020",
               borderDash: [5, 5],
               pointRadius: 0,
@@ -517,8 +517,14 @@ const initThroughputChart = async () => {
           maintainAspectRatio: false,
           animation: false,
           scales: {
-            y: { beginAtZero: true, title: { display: true, text: "吞吐率 (Gb/s)" }, suggestedMax: 200 },
-            x: { title: { display: true, text: "包大小 (KB)" } },
+            y: { 
+              beginAtZero: true, 
+              title: { display: true, text: "吞吐率 (Gb/s)" }, 
+              suggestedMax: 200 
+            },
+            x: { 
+              title: { display: true, text: "包大小" } 
+            },
           },
         },
       });
@@ -555,17 +561,19 @@ const initThroughputChart = async () => {
 const updateThroughputChart = (throughputValue?: number) => {
   if (!throughputChartInstance) return;
 
-  const label = selectedPackageSize.value.toString();
-  const data = throughputValue !== undefined ? [throughputValue] : [];
+  const label = selectedPackageSize.value.toString() + " KB";
+  
+  // 使用三个点：左边空白、中间数据点、右边空白，让图表居中显示
+  const data = throughputValue !== undefined ? [null, throughputValue, null] : [];
 
   const maxValue = throughputValue || 30;
   const dynamicMax = Math.max(40, Math.ceil((maxValue * 1.1) / 10) * 10);
 
-  throughputChartInstance.data.labels = [label];
+  throughputChartInstance.data.labels = ["", label, ""];
   throughputChartInstance.data.datasets[0].data = data;
-  throughputChartInstance.data.datasets[1].data = [30];
+  throughputChartInstance.data.datasets[1].data = [30, 30, 30];  // 目标线横跨整个图表
   throughputChartInstance.options.scales.y.max = dynamicMax;
-  throughputChartInstance.update("none");
+  throughputChartInstance.update();
 };
 
 const cleanup = () => {
