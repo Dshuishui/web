@@ -539,7 +539,7 @@ const resetCreateForms = () => {
 
 :deep(.el-radio-group) {
   display: flex;
-  flex-direction: column;
+  // flex-direction: column;
   gap: 16px;
 }
 
