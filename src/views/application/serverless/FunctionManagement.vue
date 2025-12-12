@@ -522,7 +522,7 @@ const resetCreateForms = () => {
 // 一致性选项样式
 .consistency-option {
   display: flex;
-  flex-direction: column;
+  // flex-direction: column;
   line-height: 1.4;
 
   strong {
