@@ -121,6 +121,25 @@ export const startPerformanceTest = async () => {
   }
 };
 
+// 删除函数
+export const deleteFunction = async (namespace: string, functionName: string) => {
+  const response = await fetch(
+    `/api/fission/v1/namespaces/${namespace}/functions/${functionName}`,
+    {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  // DELETE 请求可能返回空响应，需要处理
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
+};
+
 export const sendPerformanceTest = async () => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 60000);

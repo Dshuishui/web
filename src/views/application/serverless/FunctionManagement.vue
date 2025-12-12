@@ -17,11 +17,15 @@
       </div>
       <div class="function-actions-header">
         <el-button class="-emdc-button-plain" @click="refreshFunctions" :loading="functionsLoading">
-          <el-icon><Loading /></el-icon>
+          <el-icon>
+            <Loading />
+          </el-icon>
           刷新
         </el-button>
         <el-button class="-emdc-button-primary" @click="createDialogVisible = true">
-          <el-icon><Plus /></el-icon>
+          <el-icon>
+            <Plus />
+          </el-icon>
           创建函数
         </el-button>
       </div>
@@ -193,7 +197,8 @@ def main():
         <p><strong>执行器类型:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.ExecutorType }}</p>
         <p><strong>最小副本:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.MinScale }}</p>
         <p><strong>最大副本:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.MaxScale }}</p>
-        <p><strong>专业化超时:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.SpecializationTimeout }}s</p>
+        <p><strong>专业化超时:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.SpecializationTimeout }}s
+        </p>
         <p><strong>目标CPU百分比:</strong> {{ selectedFunction.spec.InvokeStrategy.ExecutionStrategy.TargetCPUPercent }}%</p>
       </div>
     </el-dialog>
@@ -208,11 +213,12 @@ import { Plus, Loading } from "@element-plus/icons-vue";
 // 接口定义 - 从useNamespace导入
 // (注意：这里的路径是 '../hooks/useNamespace'，假设 hooks 目录与 serverless 目录同级)
 // (如果 useNamespace.ts 在 'src/views/application/hooks/' 目录下, 路径是正确的)
-import { useNamespace, type FunctionItem } from "../hooks/useNamespace"; 
+import { useNamespace, type FunctionItem } from "../hooks/useNamespace";
 import {
   createEnvironment,
   createPackage,
   createFunction as createFunctionAPI,
+  deleteFunction as deleteFunctionAPI,
 } from "@/api/fission";
 
 // 使用命名空间Hook
@@ -399,15 +405,27 @@ const deleteFunction = async (func: FunctionItem) => {
         customClass: "common-messagebox",
       }
     );
+    
+    // 调用后端 API 删除函数
+    await deleteFunctionAPI(selectedNamespace.value, func.metadata.name);
+    
+    // 删除成功后，从本地数组中移除
     const index = functions.value.findIndex(
       (f) => f.metadata.name === func.metadata.name
     );
     if (index > -1) {
       functions.value.splice(index, 1);
-      ElMessage.success(`函数 "${func.metadata.name}" 已删除`);
     }
-  } catch {
-    ElMessage.info("已取消删除");
+    
+    ElMessage.success(`函数 "${func.metadata.name}" 已删除`);
+  } catch (error: any) {
+    // 用户点击取消时，error 没有 message 属性
+    if (error === 'cancel' || error?.toString().includes('cancel')) {
+      ElMessage.info("已取消删除");
+    } else {
+      console.error("删除函数失败:", error);
+      ElMessage.error(`删除函数失败: ${error?.message || '未知错误'}`);
+    }
   }
 };
 
