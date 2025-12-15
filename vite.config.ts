@@ -26,6 +26,7 @@ export default defineConfig({
   base: '/',
   server: {
     host: '0.0.0.0',
+    port: 30390,
     // host: 'dev-zjic.zhejianglab.com', // 配置本地开发域名
     proxy: {
       '/apis': {
