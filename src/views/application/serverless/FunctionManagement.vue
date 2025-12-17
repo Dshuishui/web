@@ -63,10 +63,10 @@
       <el-table-column label="操作" min-width="150" fixed="right">
         <template #default="scope">
           <div class="function-actions">
-            <el-button class="-emdc-button-plain" size="small" @click="showDetails(scope.row)">
+            <el-button link type="primary" class="-emdc-button-link" @click="showDetails(scope.row)">
               详情
             </el-button>
-            <el-button type="danger" size="small" @click="deleteFunction(scope.row)">
+            <el-button link type="primary" class="-emdc-button-link" @click="deleteFunction(scope.row)">
               删除
             </el-button>
           </div>
@@ -175,12 +175,13 @@ def main():
 
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="createDialogVisible = false">取消</el-button>
+          <el-button class="-emdc-button-plain" @click="createDialogVisible = false">取消</el-button>
           <el-button v-if="createStep > 0" @click="prevStep">上一步</el-button>
           <el-button v-if="createStep < 2" type="primary" @click="nextStep" :loading="stepLoading">
             下一步
           </el-button>
-          <el-button v-if="createStep === 2" type="primary" @click="createFunction" :loading="stepLoading">
+          <el-button v-if="createStep === 2" class="-emdc-button-primary" @click="createFunction"
+            :loading="stepLoading">
             创建函数
           </el-button>
         </span>
@@ -420,6 +421,8 @@ const deleteFunction = async (func: FunctionItem) => {
       {
         type: "warning",
         customClass: "common-messagebox",
+        cancelButtonClass: "-emdc-button-plain",
+        confirmButtonClass: "-emdc-button-primary",
       }
     );
 

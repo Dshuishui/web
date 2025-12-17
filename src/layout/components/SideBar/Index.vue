@@ -1,7 +1,7 @@
 <template>
 <el-menu :unique-opened="true"
     :collapse-transition="false" :default-active="activeMenu()"
-    style="height: 800px" 
+    :style="'height:' + mainHeight + 'px'" 
     mode="vertical" router class="common-menu">
     
     <el-sub-menu index="/serverless/index">
