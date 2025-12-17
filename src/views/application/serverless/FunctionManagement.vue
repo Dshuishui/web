@@ -31,7 +31,7 @@
       </div>
     </div>
 
-    <el-table :data="functions" class="common-table function-table" stripe v-loading="functionsLoading"
+    <el-table :data="functions" class="common-table function-table" v-loading="functionsLoading"
       v-if="functions.length > 0">
       <el-table-column prop="metadata.name" label="函数名称" min-width="160" />
       <el-table-column prop="spec.environment.name" label="环境" min-width="100" />
