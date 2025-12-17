@@ -46,7 +46,7 @@ watch(
 
 
 <style lang="less" scoped>
-.el-breadcrumb__item{
+.el-breadcrumb__item {
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
   font-size: 14px;
@@ -57,7 +57,25 @@ watch(
   margin-top: 5px;
   margin-left: 7px;
 }
-:deep(.el-breadcrumb__item:last-child .el-breadcrumb__inner){
+
+// 非末级项的内部文字和链接颜色
+:deep(.el-breadcrumb__inner) {
+  color: var(--emdc-text-color-primary);
+}
+
+:deep(.el-breadcrumb__inner a),
+:deep(.el-breadcrumb__inner.is-link) {
+  color: var(--el-text-color-regular);
+  font-weight: 400;
+}
+
+// 分隔符颜色
+:deep(.el-breadcrumb__separator) {
+  color: var(--emdc-text-color-secondary);
+}
+
+// 末级项（最后一个）的颜色
+:deep(.el-breadcrumb__item:last-child .el-breadcrumb__inner) {
   color: var(--emdc-text-color-secondary);
 }
 </style>
