@@ -32,29 +32,24 @@ const mainHeight = ref<number>(0)
 const route = useRoute()
 
 const calculateHeight = () => {
-  if (document.getElementById("header")) {
-    mainHeight.value = window.innerHeight - document.getElementById("header")!.clientHeight - 74
-  } else {
-    mainHeight.value = window.innerHeight - 124
-  }
+  mainHeight.value = window.innerHeight - 50
 }
 
+// 处理窗口大小变化的函数
 const handleResize = () => {
   calculateHeight()
 }
 
 onMounted(() => {
   calculateHeight()
-  window.addEventListener('resize', handleResize)
+  window.addEventListener('resize', handleResize) // 窗口大小变化
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
+  window.removeEventListener('resize', handleResize) // 销毁时移除监听
 })
 
 const activeMenu = (): string => {
-  // 修改这里：使用 route.path 来确保子路由被正确高亮
-  // console.log('route.path:', route.path)
   return route.path
 }
 </script>

@@ -95,13 +95,7 @@
   </script>
   <style lang="less" scoped>
   .app-table {
-    :deep(.el-table__header-wrapper th) {
-      height: 48px;
-      padding: 8px 12px;
-    }
-    :deep(.el-table__row) {
-      height: 48px;
-    }
+    // 表格对齐样式已在 common.less 中统一定义
   }
   .app-table_page {
     display: flex;

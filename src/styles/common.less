@@ -267,7 +267,7 @@
   }
 
   & .el-table__row {
-    height: 54px;
+    height: 50px;
     &.hover-row[class~='hover-row'] {
       background-color: #f5f7fa;
       & td {
@@ -287,11 +287,31 @@
   }
   & .el-table__header-wrapper {
     & .el-table__header {
-      height: 54px;
+      height: 50px;
     }
     & .el-table__cell[class~='el-table__cell'] {
       border: none;
+      padding: 0 12px;
+      vertical-align: middle;
     }
+  }
+  
+  & .el-table__body-wrapper {
+    & .el-table__cell[class~='el-table__cell'] {
+      padding: 0 12px;
+      vertical-align: middle;
+      & .cell {
+        display: flex;
+        align-items: center;
+        min-height: 50px;
+      }
+    }
+  }
+  
+  & .el-button.is-link {
+    padding: 0;
+    height: auto;
+    vertical-align: middle;
   }
   & .el-table__inner-wrapper::before {
     border-bottom: 1px solid #f5f7fa;
