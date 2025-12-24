@@ -770,10 +770,19 @@ textarea::-ms-scrollbar-thumb {
   background-color: var(--emdc-bg-color-container);
   color: var(--emdc-text-color-primary);
 
+  & .el-menu-item,
+  & .el-sub-menu__title {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    color: var(--emdc-text-color-primary);
+  }
+
   & .el-menu-item.is-active {
     color: var(--emdc-color-primary);
     background: var(--emdc-bg-color-fill);
-    border-right: 4px solid var(--emdc-color-primary);
+    border-right: 4px solid transparent;
+    border-image: linear-gradient(180deg, #4977AE 0%, #4E5C8C 100%) 1;
   }
   
   & .el-menu-item:hover {
@@ -798,7 +807,7 @@ textarea::-ms-scrollbar-thumb {
   
     & .nest-menu .el-sub-menu>.el-sub-menu__title,
     & .el-sub-menu .el-menu-item {
-      min-width: 208px !important;
+      min-width: 240px !important;
       background-color: var(--emdc-bg-color-container) !important;
   
       &:hover {

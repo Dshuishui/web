@@ -95,11 +95,18 @@
   </script>
   <style lang="less" scoped>
   .app-table {
-
+    :deep(.el-table__header-wrapper th) {
+      height: 48px;
+      padding: 8px 12px;
+    }
+    :deep(.el-table__row) {
+      height: 48px;
+    }
   }
   .app-table_page {
     display: flex;
     justify-content: center;
-    margin-top: 18px;
+    margin-top: 16px;
+    padding-bottom: 12px;
   }
   </style>

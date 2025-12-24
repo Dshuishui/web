@@ -7,7 +7,7 @@
     <el-sub-menu index="/serverless/index">
       <template #title>
         <i class="iconfont icon-menu icon-a-01-2zhisuanchihuaziyuanchi"></i>
-        <span>服务器无感协同调度平台</span>
+        <span>方舱服务器无感框架子系统</span>
       </template>
 
       <el-menu-item index="/serverless/index/functions">
@@ -25,29 +25,32 @@
 </template>
 
 <script lang="ts" setup>
-// 【关键修改】删除了 'element-plus' 的导入语句
-// import { ElMenu, ElSubMenu, ElMenuItem } from 'element-plus'; // <-- 已删除
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router';
 
 const mainHeight = ref<number>(0)
 const route = useRoute()
 
-onMounted(() => {
-  if (document.getElementById("header")) {
-    mainHeight.value = window.innerHeight - document.getElementById("header")!.clientHeight - 74
-  } else {
-    mainHeight.value = window.innerHeight - 124
-  }
-})
-
-window.onresize = () => {
+const calculateHeight = () => {
   if (document.getElementById("header")) {
     mainHeight.value = window.innerHeight - document.getElementById("header")!.clientHeight - 74
   } else {
     mainHeight.value = window.innerHeight - 124
   }
 }
+
+const handleResize = () => {
+  calculateHeight()
+}
+
+onMounted(() => {
+  calculateHeight()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 const activeMenu = (): string => {
   // 修改这里：使用 route.path 来确保子路由被正确高亮
