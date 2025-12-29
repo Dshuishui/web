@@ -774,11 +774,21 @@ textarea::-ms-scrollbar-thumb {
   border-right: none;
   background-color: var(--emdc-bg-color-container);
   color: var(--emdc-text-color-primary);
+  .el-menu-item{
+    height: 40px;
+    color: var(--emdc-text-color-regular);
+  }
+  >.el-menu-item,
+  .el-sub-menu__title{
+    height: 48px;
+    color: var(--emdc-text-color-primary);
+  }
 
   & .el-menu-item.is-active {
     color: var(--emdc-color-primary);
     background: var(--emdc-bg-color-fill);
-    border-right: 4px solid var(--emdc-color-primary);
+    border-right: 4px solid transparent;
+    border-image: linear-gradient(180deg, #497AAE 0%, #4EC58C 100%) 1;
   }
   
   & .el-menu-item:hover {
