@@ -2,7 +2,7 @@
   <div class="serverless-container">
     <div class="page-intro">
       <div class="intro-header">
-        <h1>方舱服务器无感框架子系统</h1>
+        <h1>方舱无感子系统</h1>
       </div>
 
       <div class="intro-divider"></div>
@@ -39,7 +39,7 @@
 /* (所有特定于 tab 的样式都已移至子组件) */
 
 .serverless-container {
-  padding: 20px;
+  // padding: 20px;
 
   .page-intro {
     background: #ffffff;

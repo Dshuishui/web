@@ -7,7 +7,7 @@
     <el-sub-menu index="/serverless/index">
       <template #title>
         <i class="iconfont icon-menu icon-a-01-2zhisuanchihuaziyuanchi" style="margin-left: -15px;"></i>
-        <span style="margin-left: 0px;">方舱服务器无感框架子系统</span>
+        <span style="margin-left: 0px;">方舱无感子系统</span>
       </template>
 
       <el-menu-item index="/serverless/index/functions">
