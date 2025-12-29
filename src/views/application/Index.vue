@@ -101,24 +101,17 @@ const create1 = () => {
 </script>
 <style lang="less" scoped>
 .app-container {
-  .title {
-    height: 50px;
-    display: flex;
-    align-items: center;
-    padding-left: 20px;
-    font-size: 20px;
-    border-bottom: 1px solid #dddd;
-  }
   .content {
-    padding: 20px;
+    padding: 20px 24px 24px;
   }
   .operate {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     display: flex;
     flex-direction: row;
-    gap: 8px;
+    align-items: center;
+    gap: 12px;
     .search-item {
-      width: 200px;
+      width: 220px;
     }
     .el-button+.el-button {
       margin-left: 0;

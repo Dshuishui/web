@@ -576,6 +576,8 @@ const resetCreateForms = () => {
   margin-bottom: 20px;
   padding-bottom: 12px;
   border-bottom: 1px solid #e6e6e6;
+  flex-wrap: wrap;
+  gap: 15px;
 
   .section-title {
     font-size: 20px;
@@ -599,6 +601,7 @@ const resetCreateForms = () => {
     display: flex;
     gap: 30px;
     align-items: center;
+    flex-wrap: wrap;
 
     .namespace-selector {
       display: flex;
@@ -620,6 +623,7 @@ const resetCreateForms = () => {
       display: flex;
       gap: 20px;
       align-items: center;
+      flex-wrap: wrap;
 
       .current-namespace,
       .function-count {
@@ -638,6 +642,8 @@ const resetCreateForms = () => {
 .function-actions {
   display: flex;
   gap: 8px;
+  margin-top: 0 !important;
+  align-items: center;
 }
 
 .empty-state {

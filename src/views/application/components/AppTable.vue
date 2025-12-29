@@ -95,11 +95,12 @@
   </script>
   <style lang="less" scoped>
   .app-table {
-
+    // 表格对齐样式已在 common.less 中统一定义
   }
   .app-table_page {
     display: flex;
     justify-content: center;
-    margin-top: 18px;
+    margin-top: 16px;
+    padding-bottom: 12px;
   }
   </style>

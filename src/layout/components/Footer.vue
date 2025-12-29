@@ -8,10 +8,8 @@
   font-weight: 400;
   font-size: 12px;
   color: #6D7278;
-  line-height: 17px;
+  line-height: 30px;
   font-style: normal;
   text-align: center;
-  margin-top: 6px;
-  margin-bottom: 6px;
 }
 </style>

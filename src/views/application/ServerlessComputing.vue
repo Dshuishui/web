@@ -2,8 +2,8 @@
   <div class="serverless-container">
     <div class="page-intro">
       <div class="intro-header">
-        <h1>服务器无感框架和协同调度平台</h1>
-        </div>
+        <h1>方舱服务器无感框架子系统</h1>
+      </div>
 
       <div class="intro-divider"></div>
 

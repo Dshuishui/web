@@ -6,8 +6,8 @@
     
     <el-sub-menu index="/serverless/index">
       <template #title>
-        <i class="iconfont icon-menu icon-a-01-2zhisuanchihuaziyuanchi"></i>
-        <span>服务器无感协同调度平台</span>
+        <i class="iconfont icon-menu icon-a-01-2zhisuanchihuaziyuanchi" style="margin-left: -15px;"></i>
+        <span style="margin-left: 0px;">方舱服务器无感框架子系统</span>
       </template>
 
       <el-menu-item index="/serverless/index/functions">
@@ -25,33 +25,33 @@
 </template>
 
 <script lang="ts" setup>
-// 【关键修改】删除了 'element-plus' 的导入语句
-// import { ElMenu, ElSubMenu, ElMenuItem } from 'element-plus'; // <-- 已删除
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router';
 
 const mainHeight = ref<number>(0)
 const route = useRoute()
 
-onMounted(() => {
-  if (document.getElementById("header")) {
-    mainHeight.value = window.innerHeight - document.getElementById("header")!.clientHeight - 74
-  } else {
-    mainHeight.value = window.innerHeight - 124
-  }
-})
-
-window.onresize = () => {
-  if (document.getElementById("header")) {
-    mainHeight.value = window.innerHeight - document.getElementById("header")!.clientHeight - 74
-  } else {
-    mainHeight.value = window.innerHeight - 124
-  }
+const calculateHeight = () => {
+  mainHeight.value = window.innerHeight - 50
 }
 
+// 处理窗口大小变化的函数
+const handleResize = () => {
+  calculateHeight()
+}
+
+onMounted(() => {
+  calculateHeight()
+  // 监听窗口大小变化
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  // 组件销毁时移除监听
+  window.removeEventListener('resize', handleResize)
+})
+
 const activeMenu = (): string => {
-  // 修改这里：使用 route.path 来确保子路由被正确高亮
-  // console.log('route.path:', route.path)
   return route.path
 }
 </script>

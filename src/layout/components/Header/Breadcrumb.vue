@@ -28,7 +28,7 @@ const getBreadcrumb = () => {
   // 假设您的首页路径是 '/' 且 title 是 '首页'
   const first = matched[0];
   if (first && first.path !== '/') {
-    matched = [{ path: '/', meta: { title: '服务器无感协同调度平台' } } as unknown as RouteLocationMatched].concat(matched);
+    matched = [{ path: '/', meta: { title: '方舱服务器无感框架子系统' } } as unknown as RouteLocationMatched].concat(matched);
   }
   
   levelList.value = matched;
@@ -54,8 +54,7 @@ watch(
   line-height: 22px;
   text-align: left;
   font-style: normal;
-  margin-top: 5px;
-  margin-left: 7px;
+  margin: 9px 0;
 }
 
 // 非末级项的内部文字和链接颜色

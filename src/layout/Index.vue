@@ -1,15 +1,15 @@
 <template>
-  <el-container>
+  <el-container style="height: 100vh;">
     <el-header id="header">
       <NavBar />
     </el-header>
-    <el-container>
+    <el-container style="height: calc(100% - 50px);">
       <el-aside>
         <SideBar class="sidebar-container" />
       </el-aside>
       <el-main>
-        <Breadcrumb style="margin-top: 4px" />
-        <LayoutMain style="margin-top: 12px" />
+        <Breadcrumb />
+        <LayoutMain />
         <Footer />
       </el-main>
     </el-container>
@@ -41,5 +41,6 @@ import Footer from './components/Footer.vue';
 .el-main{
   background-color: #F5F7FA;
   padding: 0 16px 0px 16px;
+  overflow-y: auto;
 }
 </style>
