@@ -26,6 +26,19 @@
               <span class="item-number">2</span>
               <div class="item-content">
                 <div class="item-header">
+                  <div class="item-title">CD-Raft: Reducing the Latency of Distributed Consensus in Cross-Domain Sites
+                  </div>
+                  <div class="item-authors">Yangyang Wang, et al.</div>
+                  <div class="item-venue">IEEE INFOCOM, 2026 (已录用)</div>
+                </div>
+                <!-- <span class="award-badge-new">🎯 CCF-A类顶会</span> -->
+              </div>
+            </div>
+
+            <div class="compact-item">
+              <span class="item-number">3</span>
+              <div class="item-content">
+                <div class="item-header">
                   <div class="item-title">λGrapher: A Resource-Efficient Serverless System for GNN Serving through
                     Graph
                     Sharing</div>
@@ -36,7 +49,7 @@
             </div>
 
             <div class="compact-item">
-              <span class="item-number">3</span>
+              <span class="item-number">4</span>
               <div class="item-content">
                 <div class="item-header">
                   <div class="item-title">ComboFunc: Joint Resource Combination and Container Placement for
@@ -49,7 +62,7 @@
             </div>
 
             <div class="compact-item">
-              <span class="item-number">4</span>
+              <span class="item-number">5</span>
               <div class="item-content">
                 <div class="item-header">
                   <div class="item-title">AsyFunc: A High-Performance Serverless Inference System via Asymmetric
@@ -61,7 +74,7 @@
             </div>
 
             <div class="compact-item">
-              <span class="item-number">5</span>
+              <span class="item-number">6</span>
               <div class="item-content">
                 <div class="item-header">
                   <div class="item-title">Hydis: A Hybrid Consistent KVS with Effective Sync Among Replicas</div>
@@ -72,7 +85,7 @@
             </div>
 
             <div class="compact-item">
-              <span class="item-number">6</span>
+              <span class="item-number">7</span>
               <div class="item-content">
                 <div class="item-header">
                   <div class="item-title">Edge AI-driven Neural Network Predictions for Replica Sync Optimization
@@ -84,7 +97,7 @@
             </div>
 
             <div class="compact-item">
-              <span class="item-number">7</span>
+              <span class="item-number">8</span>
               <div class="item-content">
                 <div class="item-header">
                   <div class="item-title">Exploring nonintrusive measurements of spatio-temporal portrait of
@@ -104,6 +117,18 @@
               <span class="item-number">1</span>
               <div class="item-content">
                 <div class="item-header">
+                  <div class="item-title">基于异构磁盘的分布式存储优化方法、系统、设备及介质</div>
+                  <div class="item-authors">王洋洋, 苏义栋, 董余聪, 徐子晨, 马帅</div>
+                  <div class="item-venue">申请号: 202511948464X</div>
+                </div>
+                <!-- <span class="patent-badge-new">📅 2025年12月申请</span> -->
+              </div>
+            </div>
+
+            <div class="compact-item">
+              <span class="item-number">2</span>
+              <div class="item-content">
+                <div class="item-header">
                   <div class="item-title">基于异质容器组合的无服务器函数弹性调度方法及系统</div>
                   <div class="item-authors">温兆捷, 刘方明, 等</div>
                   <div class="item-venue">专利号: 2024109687817</div>
@@ -112,7 +137,7 @@
             </div>
 
             <div class="compact-item">
-              <span class="item-number">2</span>
+              <span class="item-number">3</span>
               <div class="item-content">
                 <div class="item-header">
                   <div class="item-title">服务器无感框架的冷启动优化方法、系统、设备及介质</div>
@@ -123,7 +148,7 @@
             </div>
 
             <div class="compact-item">
-              <span class="item-number">3</span>
+              <span class="item-number">4</span>
               <div class="item-content">
                 <div class="item-header">
                   <div class="item-title">服务器无感框架的函数资源管理方法、系统、设备及介质</div>
@@ -134,7 +159,7 @@
             </div>
 
             <div class="compact-item">
-              <span class="item-number">4</span>
+              <span class="item-number">5</span>
               <div class="item-content">
                 <div class="item-header">
                   <div class="item-title">一种具备动态优化复制策略的混合一致性方法及系统</div>
@@ -183,11 +208,11 @@
 
           <div class="achievement-stats">
             <div class="stat-item">
-              <div class="stat-number">7</div>
+              <div class="stat-number">8</div>
               <div class="stat-label">篇论文</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">4</div>
+              <div class="stat-number">5</div>
               <div class="stat-label">项专利</div>
             </div>
             <div class="stat-item">
@@ -334,6 +359,28 @@
       padding: 2px 8px;
       background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
       color: #8b4513;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .award-badge-new {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 2px 8px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .patent-badge-new {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 2px 8px;
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      color: #ffffff;
       border-radius: 3px;
       font-size: 11px;
       font-weight: 600;
