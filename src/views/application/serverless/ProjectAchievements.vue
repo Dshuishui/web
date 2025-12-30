@@ -481,7 +481,7 @@
   }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1280px) {
   .achievements-grid {
     grid-template-columns: 1fr;
   }

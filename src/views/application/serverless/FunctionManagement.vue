@@ -76,7 +76,7 @@
 
     <div v-if="!functionsLoading && functions.length === 0" class="empty-state">
       <el-empty description="当前命名空间下暂无函数" :image-size="120">
-        <el-button type="primary" @click="createDialogVisible = true">
+        <el-button class="-emdc-button-primary " @click="createDialogVisible = true">
           创建第一个函数
         </el-button>
       </el-empty>
@@ -177,7 +177,7 @@ def main():
         <span class="dialog-footer">
           <el-button class="-emdc-button-plain" @click="createDialogVisible = false">取消</el-button>
           <el-button v-if="createStep > 0" @click="prevStep">上一步</el-button>
-          <el-button v-if="createStep < 2" type="primary" @click="nextStep" :loading="stepLoading">
+          <el-button v-if="createStep < 2" class="-emdc-button-primary" @click="nextStep" :loading="stepLoading">
             下一步
           </el-button>
           <el-button v-if="createStep === 2" class="-emdc-button-primary" @click="createFunction"
