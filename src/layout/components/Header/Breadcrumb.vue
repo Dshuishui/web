@@ -46,6 +46,9 @@ watch(
 
 
 <style lang="less" scoped>
+.el-breadcrumb {
+  padding-left: 6px;
+}
 .el-breadcrumb__item {
   font-family: PingFangSC, PingFang SC;
   font-weight: 400;
