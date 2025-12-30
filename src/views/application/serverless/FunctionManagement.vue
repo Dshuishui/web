@@ -176,7 +176,7 @@ def main():
       <template #footer>
         <span class="dialog-footer">
           <el-button class="-emdc-button-plain" @click="createDialogVisible = false">取消</el-button>
-          <el-button v-if="createStep > 0" @click="prevStep">上一步</el-button>
+          <el-button v-if="createStep > 0" class="-emdc-button-primary" @click="prevStep">上一步</el-button>
           <el-button v-if="createStep < 2" class="-emdc-button-primary" @click="nextStep" :loading="stepLoading">
             下一步
           </el-button>
